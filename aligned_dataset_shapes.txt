@@ -1,0 +1,349 @@
+anymal_state_odometry:
+-->    pose_cov (852250, 6, 6) <class 'numpy.ndarray'>
+-->    pose_orien (852250, 4) <class 'numpy.ndarray'>
+-->    pose_pos (852250, 3) <class 'numpy.ndarray'>
+-->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
+-->    twist_ang (852250, 3) <class 'numpy.ndarray'>
+-->    twist_cov (852250, 6, 6) <class 'numpy.ndarray'>
+-->    twist_lin (852250, 3) <class 'numpy.ndarray'>
+------------------------------
+
+anymal_state_state_estimator:
+-->    LF_FOOT_contact (852250,) <class 'numpy.ndarray'>
+-->    LF_FOOT_friction_coef (852250,) <class 'numpy.ndarray'>
+-->    LF_FOOT_normal (852250, 3) <class 'numpy.ndarray'>
+-->    LF_FOOT_restitution_coef (852250,) <class 'numpy.ndarray'>
+-->    LF_FOOT_state (852250,) <class 'numpy.ndarray'>
+-->    LF_FOOT_wrench_force (852250, 3) <class 'numpy.ndarray'>
+-->    LF_FOOT_wrench_torque (852250, 3) <class 'numpy.ndarray'>
+-->    LH_FOOT_contact (852250,) <class 'numpy.ndarray'>
+-->    LH_FOOT_friction_coef (852250,) <class 'numpy.ndarray'>
+-->    LH_FOOT_normal (852250, 3) <class 'numpy.ndarray'>
+-->    LH_FOOT_restitution_coef (852250,) <class 'numpy.ndarray'>
+-->    LH_FOOT_state (852250,) <class 'numpy.ndarray'>
+-->    LH_FOOT_wrench_force (852250, 3) <class 'numpy.ndarray'>
+-->    LH_FOOT_wrench_torque (852250, 3) <class 'numpy.ndarray'>
+-->    RF_FOOT_contact (852250,) <class 'numpy.ndarray'>
+-->    RF_FOOT_friction_coef (852250,) <class 'numpy.ndarray'>
+-->    RF_FOOT_normal (852250, 3) <class 'numpy.ndarray'>
+-->    RF_FOOT_restitution_coef (852250,) <class 'numpy.ndarray'>
+-->    RF_FOOT_state (852250,) <class 'numpy.ndarray'>
+-->    RF_FOOT_wrench_force (852250, 3) <class 'numpy.ndarray'>
+-->    RF_FOOT_wrench_torque (852250, 3) <class 'numpy.ndarray'>
+-->    RH_FOOT_contact (852250,) <class 'numpy.ndarray'>
+-->    RH_FOOT_friction_coef (852250,) <class 'numpy.ndarray'>
+-->    RH_FOOT_normal (852250, 3) <class 'numpy.ndarray'>
+-->    RH_FOOT_restitution_coef (852250,) <class 'numpy.ndarray'>
+-->    RH_FOOT_state (852250,) <class 'numpy.ndarray'>
+-->    RH_FOOT_wrench_force (852250, 3) <class 'numpy.ndarray'>
+-->    RH_FOOT_wrench_torque (852250, 3) <class 'numpy.ndarray'>
+-->    joint_accelerations (852250, 12) <class 'numpy.ndarray'>
+-->    joint_efforts (852250, 12) <class 'numpy.ndarray'>
+-->    joint_positions (852250, 12) <class 'numpy.ndarray'>
+-->    joint_velocities (852250, 12) <class 'numpy.ndarray'>
+-->    pose_orien (852250, 4) <class 'numpy.ndarray'>
+-->    pose_pos (852250, 3) <class 'numpy.ndarray'>
+-->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
+-->    twist_ang (852250, 3) <class 'numpy.ndarray'>
+-->    twist_lin (852250, 3) <class 'numpy.ndarray'>
+------------------------------
+
+anymal_imu:
+-->    ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    orien (852250, 4) <class 'numpy.ndarray'>
+-->    orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
+------------------------------
+
+anymal_state_actuator:
+-->    00_command_current (852250,) <class 'numpy.ndarray'>
+-->    00_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    00_command_mode (852250,) <class 'numpy.ndarray'>
+-->    00_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    00_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    00_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    00_command_position (852250,) <class 'numpy.ndarray'>
+-->    00_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    00_state_current (852250,) <class 'numpy.ndarray'>
+-->    00_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    00_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    00_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    00_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    00_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    00_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    00_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    00_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    00_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    00_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    00_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    00_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    00_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    01_command_current (852250,) <class 'numpy.ndarray'>
+-->    01_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    01_command_mode (852250,) <class 'numpy.ndarray'>
+-->    01_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    01_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    01_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    01_command_position (852250,) <class 'numpy.ndarray'>
+-->    01_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    01_state_current (852250,) <class 'numpy.ndarray'>
+-->    01_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    01_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    01_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    01_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    01_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    01_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    01_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    01_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    01_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    01_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    01_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    01_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    01_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    02_command_current (852250,) <class 'numpy.ndarray'>
+-->    02_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    02_command_mode (852250,) <class 'numpy.ndarray'>
+-->    02_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    02_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    02_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    02_command_position (852250,) <class 'numpy.ndarray'>
+-->    02_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    02_state_current (852250,) <class 'numpy.ndarray'>
+-->    02_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    02_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    02_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    02_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    02_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    02_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    02_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    02_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    02_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    02_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    02_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    02_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    02_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    03_command_current (852250,) <class 'numpy.ndarray'>
+-->    03_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    03_command_mode (852250,) <class 'numpy.ndarray'>
+-->    03_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    03_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    03_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    03_command_position (852250,) <class 'numpy.ndarray'>
+-->    03_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    03_state_current (852250,) <class 'numpy.ndarray'>
+-->    03_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    03_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    03_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    03_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    03_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    03_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    03_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    03_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    03_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    03_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    03_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    03_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    03_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    04_command_current (852250,) <class 'numpy.ndarray'>
+-->    04_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    04_command_mode (852250,) <class 'numpy.ndarray'>
+-->    04_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    04_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    04_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    04_command_position (852250,) <class 'numpy.ndarray'>
+-->    04_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    04_state_current (852250,) <class 'numpy.ndarray'>
+-->    04_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    04_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    04_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    04_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    04_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    04_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    04_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    04_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    04_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    04_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    04_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    04_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    04_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    05_command_current (852250,) <class 'numpy.ndarray'>
+-->    05_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    05_command_mode (852250,) <class 'numpy.ndarray'>
+-->    05_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    05_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    05_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    05_command_position (852250,) <class 'numpy.ndarray'>
+-->    05_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    05_state_current (852250,) <class 'numpy.ndarray'>
+-->    05_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    05_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    05_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    05_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    05_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    05_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    05_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    05_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    05_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    05_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    05_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    05_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    05_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    06_command_current (852250,) <class 'numpy.ndarray'>
+-->    06_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    06_command_mode (852250,) <class 'numpy.ndarray'>
+-->    06_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    06_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    06_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    06_command_position (852250,) <class 'numpy.ndarray'>
+-->    06_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    06_state_current (852250,) <class 'numpy.ndarray'>
+-->    06_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    06_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    06_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    06_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    06_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    06_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    06_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    06_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    06_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    06_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    06_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    06_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    06_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    07_command_current (852250,) <class 'numpy.ndarray'>
+-->    07_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    07_command_mode (852250,) <class 'numpy.ndarray'>
+-->    07_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    07_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    07_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    07_command_position (852250,) <class 'numpy.ndarray'>
+-->    07_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    07_state_current (852250,) <class 'numpy.ndarray'>
+-->    07_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    07_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    07_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    07_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    07_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    07_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    07_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    07_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    07_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    07_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    07_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    07_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    07_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    08_command_current (852250,) <class 'numpy.ndarray'>
+-->    08_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    08_command_mode (852250,) <class 'numpy.ndarray'>
+-->    08_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    08_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    08_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    08_command_position (852250,) <class 'numpy.ndarray'>
+-->    08_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    08_state_current (852250,) <class 'numpy.ndarray'>
+-->    08_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    08_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    08_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    08_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    08_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    08_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    08_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    08_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    08_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    08_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    08_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    08_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    08_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    09_command_current (852250,) <class 'numpy.ndarray'>
+-->    09_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    09_command_mode (852250,) <class 'numpy.ndarray'>
+-->    09_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    09_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    09_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    09_command_position (852250,) <class 'numpy.ndarray'>
+-->    09_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    09_state_current (852250,) <class 'numpy.ndarray'>
+-->    09_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    09_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    09_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    09_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    09_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    09_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    09_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    09_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    09_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    09_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    09_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    09_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    09_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    10_command_current (852250,) <class 'numpy.ndarray'>
+-->    10_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    10_command_mode (852250,) <class 'numpy.ndarray'>
+-->    10_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    10_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    10_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    10_command_position (852250,) <class 'numpy.ndarray'>
+-->    10_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    10_state_current (852250,) <class 'numpy.ndarray'>
+-->    10_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    10_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    10_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    10_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    10_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    10_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    10_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    10_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    10_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    10_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    10_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    10_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    10_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    11_command_current (852250,) <class 'numpy.ndarray'>
+-->    11_command_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    11_command_mode (852250,) <class 'numpy.ndarray'>
+-->    11_command_pid_gains_d (852250,) <class 'numpy.ndarray'>
+-->    11_command_pid_gains_i (852250,) <class 'numpy.ndarray'>
+-->    11_command_pid_gains_p (852250,) <class 'numpy.ndarray'>
+-->    11_command_position (852250,) <class 'numpy.ndarray'>
+-->    11_command_velocity (852250,) <class 'numpy.ndarray'>
+-->    11_state_current (852250,) <class 'numpy.ndarray'>
+-->    11_state_gear_position (852250,) <class 'numpy.ndarray'>
+-->    11_state_gear_velocity (852250,) <class 'numpy.ndarray'>
+-->    11_state_imu_ang_vel (852250, 3) <class 'numpy.ndarray'>
+-->    11_state_imu_ang_vel_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    11_state_imu_lin_acc (852250, 3) <class 'numpy.ndarray'>
+-->    11_state_imu_lin_acc_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    11_state_imu_orien (852250, 4) <class 'numpy.ndarray'>
+-->    11_state_imu_orien_cov (852250, 3, 3) <class 'numpy.ndarray'>
+-->    11_state_joint_acceleration (852250,) <class 'numpy.ndarray'>
+-->    11_state_joint_position (852250,) <class 'numpy.ndarray'>
+-->    11_state_joint_torque (852250,) <class 'numpy.ndarray'>
+-->    11_state_joint_velocity (852250,) <class 'numpy.ndarray'>
+-->    11_state_statusword (852250,) <class 'numpy.ndarray'>
+-->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
+------------------------------
+
+anymal_command_twist:
+-->    angular (852250, 3) <class 'numpy.ndarray'>
+-->    linear (852250, 3) <class 'numpy.ndarray'>
+-->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
+------------------------------
+
+Building Offline Dataset...
+Saving observations: (852249, 51) float64
+Saving actions: (852249, 12) float64
+Saving next_observations: (852249, 51) float64
+Saving rewards: (852249,) float64
+Saving terminals: (852249,) bool
+Saved dataset to offline_dataset.hdf5
+
+observations: <class 'numpy.ndarray'> (852249, 51)
+actions: <class 'numpy.ndarray'> (852249, 12)
+next_observations: <class 'numpy.ndarray'> (852249, 51)
+rewards: <class 'numpy.ndarray'> (852249,)
+terminals: <class 'numpy.ndarray'> (852249,)
+Total episodes: 853
+Median Episode Return: 25.98146322716498

@@ -1,2 +1,4 @@
 /venv38
 /.env
+/missions
+/__pycache__
