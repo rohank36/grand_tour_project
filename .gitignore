@@ -2,3 +2,5 @@
 /.env
 /missions
 /__pycache__
+/offline_dataset*.hdf5
+/*test*
