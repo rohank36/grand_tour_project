@@ -193,11 +193,11 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     up_axis_idx = 2 # 2 for z, 1 for y -> adapt gravity accordingly
     gravity_vec = get_axis_params(-1., up_axis_idx)
     base_quat =  imu["orien"] # assumes quaternion that rotates body --> world 
-    projected_gravity = quat_rotate_inverse(base_quat, gravity_vec) # (T,4)
+    projected_gravity = quat_rotate_inverse(base_quat, gravity_vec) # (T,3)
 
     base_lin_vel = est["twist_lin"]          # (T, 3)
     base_ang_vel = est["twist_ang"]          # (T, 3)
-    joint_pos = est["joint_positions"]       # (T, 12)
+    joint_pos = est["joint_positions"]       # (T, 12) # need to substract default_dos_pos here?
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
     cmd_ang = cmd["angular"]                 # (T, 3)
@@ -208,6 +208,28 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
 
+    # select correct command dimensions to match isaac
+    # cmd_lin is [vx, vy, vz], need [vx, vy] 
+    # cmd_ang is [roll, pitch, yaw]. need [yaw]
+    
+    commands_xy_yaw = np.concatenate([
+        cmd_lin[:, 0:2],   # Linear X and Y
+        cmd_ang[:, 2:3]    # Angular Yaw
+    ], axis=-1)            
+
+    # re order concatenation to match Isaac Gym standard
+    # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
+    obs = np.concatenate([
+        base_lin_vel,       # 3
+        base_ang_vel,       # 3
+        projected_gravity,  # 3
+        commands_xy_yaw,    # 3  
+        joint_pos,          # 12
+        joint_vel,          # 12
+        prev_actions,       # 12
+    ], axis=-1)             # Total: 48 dimensions
+
+    """
     obs = np.concatenate([
         base_lin_vel,
         base_ang_vel,
@@ -218,6 +240,7 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         cmd_lin,
         cmd_ang,
     ], axis=-1)  # (T, obs_dim)
+    """
     
     rews = compute_rewards_offline(
         base_ang_vel,
