@@ -4,3 +4,4 @@
 /__pycache__
 /offline_dataset*.hdf5
 /*test*
+/wandb

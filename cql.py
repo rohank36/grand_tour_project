@@ -18,6 +18,7 @@ import wandb
 from tqdm import tqdm
 #from eval_isaac_v2 import eval_actor_isaac
 from eval_isaac_v2 import OnlineEval
+import time
 
 import torch
 import torch.nn as nn
@@ -33,10 +34,10 @@ class TrainConfig:
     #env: str = "halfcheetah-medium-expert-v2"  # OpenAI gym environment name
     seed: int = 0  # Sets Gym, PyTorch and Numpy seeds
     #eval_freq: int = int(5e3)  # How often (time steps) we evaluate
-    eval_freq: int = int(1e3) # FOR TESTING
+    eval_freq: int = int(1e4) 
     n_episodes: int = 10  # How many episodes run during evaluation
-    #max_timesteps: int = int(1e6)  # Max time steps to run environment
-    max_timesteps: int = int(1e4) # FOR TESTING
+    max_timesteps: int = int(1e6)  # Max time steps to run environment
+    #max_timesteps: int = int(1e4) # FOR TESTING
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
@@ -215,7 +216,7 @@ def wandb_init(config: dict) -> None:
         name=config["name"],
         id=str(uuid.uuid4()),
     )
-    wandb.run.save()
+    #wandb.run.save()
 
 
 """
@@ -775,6 +776,12 @@ class ContinuousCQL:
 
         new_actions, log_pi = self.actor(observations)
 
+        with torch.no_grad():
+            action_mean = new_actions.mean().item()
+            action_std = new_actions.std().item()
+            action_min = new_actions.min().item()
+            action_max = new_actions.max().item()
+
         alpha, alpha_loss = self._alpha_and_alpha_loss(observations, log_pi)
 
         """ Policy loss """
@@ -787,6 +794,10 @@ class ContinuousCQL:
             policy_loss=policy_loss.item(),
             alpha_loss=alpha_loss.item(),
             alpha=alpha.item(),
+            action_mean=action_mean,
+            action_std=action_std,
+            action_min=action_min,
+            action_max=action_max,
         )
 
         """ Q function loss """
@@ -982,20 +993,37 @@ def train(config: TrainConfig):
         trainer.load_state_dict(torch.load(policy_file))
         actor = trainer.actor
 
-    #wandb_init(asdict(config))
+    wandb_init(asdict(config))
+
+    # Compute dataset action baseline stats and log them once
+    ds_actions = dataset["actions"]
+    ds_mean = float(ds_actions.mean())
+    ds_std  = float(ds_actions.std())
+    ds_min  = float(ds_actions.min())
+    ds_max  = float(ds_actions.max())
+
+    wandb.log({
+        "action/dataset_mean": ds_mean,
+        "action/dataset_std":  ds_std,
+        "action/dataset_min":  ds_min,
+        "action/dataset_max":  ds_max,
+        "action/max_action":   float(max_action),
+    }, step=0)
+    # -------------------------------------------
 
     evaluations = []
-    online_eval = OnlineEval(task_name="anymal_c_flat")
+    online_eval = OnlineEval(task_name="anymal_d_flat")
+    start_time = time.time()
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)), desc="Training CQL"):
         batch = replay_buffer.sample(config.batch_size)
         batch = [b.to(config.device) for b in batch]
         log_dict = trainer.train(batch)
-        #wandb.log(log_dict, step=trainer.total_it)
+        wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
         
         if (t + 1) % config.eval_freq == 0:
-        #if t == 1: # FOR TESTING
+        #if t == config.max_timesteps+1: # FOR TESTING
             """
             eval_scores = eval_actor(
                 env,
@@ -1031,22 +1059,33 @@ def train(config: TrainConfig):
                     trainer.state_dict(),
                     os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                 )
-            """
-            # TODO: ONCE CODE IS FULLY DEBUGEED THEN UNCOMMENT ALL WANDB TO LOG PROPERLY
+            
             wandb.log(
                 #{"d4rl_normalized_score": normalized_eval_score},
                 {"isaac_reward": eval_score},
                 step=trainer.total_it,
             )
-            """
 
         #if t==2: break # FOR TESTING
 
+    end_time = time.time()
+    training_time_minutes = (end_time - start_time) / 60
     np_eval = np.array(evaluations) 
     print(f"\n\n\n")
+    print(f"Training duration: {training_time_minutes:.2f} minutes")
     print(f"MIN online eval score: {np_eval.min()}")
     print(f"MAX online eval score: {np_eval.max()}")
     print(f"MEAN online eval score: {np_eval.mean()}")
+
+    """
+    #FOR TESTING:
+    eval_score,n_eps_evaluated = online_eval.eval_actor_isaac(
+                                            actor=actor,
+                                            #task_name="anymal_c_flat",
+                                            device=config.device,
+                                        )
+    print(f"\n\nEvaluation over {n_eps_evaluated} episodes: {eval_score:.3f}")
+    """
 
 
 if __name__ == "__main__":

@@ -16,6 +16,8 @@ class OnlineEval:
 
     def __init__(self,task_name):
         args = get_args()
+        args.task = task_name
+        args.headless = True # Set headless for faster eval
         env_cfg, train_cfg = task_registry.get_cfgs(name=task_name)
 
         env_cfg.terrain.num_rows = 5
