@@ -12,10 +12,13 @@ import torch
 
 from tqdm import tqdm
 
+from reward import rewards
+
 class OnlineEval:
 
-    def __init__(self,task_name):
+    def __init__(self,task_name,seed):
         args = get_args()
+        args.seed = seed
         args.task = task_name
         args.headless = True # Set headless for faster eval
         env_cfg, train_cfg = task_registry.get_cfgs(name=task_name)
@@ -60,13 +63,25 @@ class OnlineEval:
         self.env = env
         self.args = args
 
+        self.scales_dict = {
+            name: value
+            for name, value in vars(rewards.scales).items()
+        }
+
+        decimation = 4
+        physics_base = 0.005
+        self.dt = decimation * physics_base
+
     def calculate_total_reward(self,logger: Logger):
-        avg_ep_rew = 0
+        avg_total_ep_rew = 0
+        scaled_rew_terms_avg = {}
         for key,values in logger.rew_log.items():
-            mean = np.sum(np.array(values)) / logger.num_episodes
-            avg_ep_rew += mean
+            values_scaled = np.array(values) * self.scales_dict[key.replace("rew_", "")] * self.dt
+            mean = np.sum(values_scaled) / logger.num_episodes
+            scaled_rew_terms_avg[key] = mean
+            avg_total_ep_rew += mean
         
-        return avg_ep_rew, logger.num_episodes
+        return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
 
     @torch.no_grad()
     def eval_actor_isaac(

@@ -34,10 +34,10 @@ class TrainConfig:
     #env: str = "halfcheetah-medium-expert-v2"  # OpenAI gym environment name
     seed: int = 0  # Sets Gym, PyTorch and Numpy seeds
     #eval_freq: int = int(5e3)  # How often (time steps) we evaluate
-    eval_freq: int = int(1e4) 
+    eval_freq: int = int(500) 
     n_episodes: int = 10  # How many episodes run during evaluation
-    max_timesteps: int = int(1e6)  # Max time steps to run environment
-    #max_timesteps: int = int(1e4) # FOR TESTING
+    #max_timesteps: int = int(1e6)  # Max time steps to run environment
+    max_timesteps: int = int(1e4) # FOR TESTING
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
@@ -193,10 +193,9 @@ class ReplayBuffer:
         # I left it unimplemented since now we do not do fine-tuning.
         raise NotImplementedError
 
-"""
-def set_seed(
-    seed: int, env: Optional[gym.Env] = None, deterministic_torch: bool = False
-):
+
+#def set_seed( seed: int, env: Optional[gym.Env] = None, deterministic_torch: bool = False):
+def set_seed(seed,env=None,deterministic_torch=False):
     if env is not None:
         env.seed(seed)
         env.action_space.seed(seed)
@@ -205,7 +204,6 @@ def set_seed(
     random.seed(seed)
     torch.manual_seed(seed)
     torch.use_deterministic_algorithms(deterministic_torch)
-"""
 
 
 def wandb_init(config: dict) -> None:
@@ -926,7 +924,7 @@ def train(config: TrainConfig):
 
     # Set seeds
     seed = config.seed
-    #set_seed(seed, env)
+    set_seed(seed)
 
     critic_1 = FullyConnectedQFunction(
         state_dim,
@@ -982,7 +980,7 @@ def train(config: TrainConfig):
 
     print("---------------------------------------")
     #print(f"Training CQL, Env: {config.env}, Seed: {seed}")
-    print(f"Training CQL")
+    print(f"Training CQL, Seed: {seed}")
     print("---------------------------------------")
 
     # Initialize actor
@@ -997,22 +995,156 @@ def train(config: TrainConfig):
 
     # Compute dataset action baseline stats and log them once
     ds_actions = dataset["actions"]
-    ds_mean = float(ds_actions.mean())
-    ds_std  = float(ds_actions.std())
-    ds_min  = float(ds_actions.min())
-    ds_max  = float(ds_actions.max())
 
-    wandb.log({
-        "action/dataset_mean": ds_mean,
-        "action/dataset_std":  ds_std,
-        "action/dataset_min":  ds_min,
-        "action/dataset_max":  ds_max,
-        "action/max_action":   float(max_action),
-    }, step=0)
+    # Per-dimension statistics shape (12,)
+    act_mean = ds_actions.mean(axis=0)          
+    act_std  = ds_actions.std(axis=0)           
+    act_min  = ds_actions.min(axis=0)           
+    act_max  = ds_actions.max(axis=0)           
+
+    # Global stats (scalar)
+    ds_act_mean = float(ds_actions.mean())
+    ds_act_std  = float(ds_actions.std())
+    ds_act_min  = float(ds_actions.min())
+    ds_act_max  = float(ds_actions.max())
+
+    # Compute dataset observation baseline stats and log them once
+    ds_observations = dataset["observations"]
+
+    # Per-dimension statistics shape (48,)
+    obs_mean = ds_observations.mean(axis=0)
+    obs_std  = ds_observations.std(axis=0)
+    obs_min  = ds_observations.min(axis=0)
+    obs_max  = ds_observations.max(axis=0)
+
+     # Global stats (scalar)
+    ds_obs_mean = float(ds_observations.mean())
+    ds_obs_std  = float(ds_observations.std())
+    ds_obs_min  = float(ds_observations.min())
+    ds_obs_max  = float(ds_observations.max())
+
+
+    obs_dims    = list(range(state_dim))          # or range(1, state_dim+1)
+    action_dims = list(range(action_dim))
+
+    # -------- Observation per-dim plots --------
+    obs_mean_plot = wandb.plot.line_series(
+        xs=obs_dims,
+        ys=[obs_mean.tolist()],                   # single line
+        keys=["obs_mean"],
+        title="Observation mean per dimension",
+        xname="dimension",
+    )
+
+    obs_std_plot = wandb.plot.line_series(
+        xs=obs_dims,
+        ys=[obs_std.tolist()],
+        keys=["obs_std"],
+        title="Observation std per dimension",
+        xname="dimension",
+    )
+
+    obs_min_plot = wandb.plot.line_series(
+        xs=obs_dims,
+        ys=[obs_min.tolist()],
+        keys=["obs_min"],
+        title="Observation min per dimension",
+        xname="dimension",
+    )
+
+    obs_max_plot = wandb.plot.line_series(
+        xs=obs_dims,
+        ys=[obs_max.tolist()],
+        keys=["obs_max"],
+        title="Observation max per dimension",
+        xname="dimension",
+    )
+
+    # -------- Action per-dim plots --------
+    act_mean_plot = wandb.plot.line_series(
+        xs=action_dims,
+        ys=[act_mean.tolist()],
+        keys=["act_mean"],
+        title="Action mean per dimension",
+        xname="dimension",
+    )
+
+    act_std_plot = wandb.plot.line_series(
+        xs=action_dims,
+        ys=[act_std.tolist()],
+        keys=["act_std"],
+        title="Action std per dimension",
+        xname="dimension",
+    )
+
+    act_min_plot = wandb.plot.line_series(
+        xs=action_dims,
+        ys=[act_min.tolist()],
+        keys=["act_min"],
+        title="Action min per dimension",
+        xname="dimension",
+    )
+
+    act_max_plot = wandb.plot.line_series(
+        xs=action_dims,
+        ys=[act_max.tolist()],
+        keys=["act_max"],
+        title="Action max per dimension",
+        xname="dimension",
+    )
+
+
+    wandb.log(
+    {
+        # Global Observation stats
+        "obs/global_mean": ds_obs_mean,
+        "obs/global_std":  ds_obs_std,
+        "obs/global_min":  ds_obs_min,
+        "obs/global_max":  ds_obs_max,
+
+        # Historgram of all obs values 
+        "obs/hist": wandb.Histogram(ds_observations.flatten()),
+
+        # Per-dimension stats 
+        #**{f"obs/mean_dim_{i}": float(obs_mean[i]) for i in range(state_dim)},
+        #**{f"obs/std_dim_{i}":  float(obs_std[i])  for i in range(state_dim)},
+        #**{f"obs/min_dim_{i}":  float(obs_min[i])  for i in range(state_dim)},
+        #**{f"obs/max_dim_{i}":  float(obs_max[i])  for i in range(state_dim)},
+
+        "obs/mean_per_dim_plot":  obs_mean_plot,
+        "obs/std_per_dim_plot":   obs_std_plot,
+        "obs/min_per_dim_plot":   obs_min_plot,
+        "obs/max_per_dim_plot":   obs_max_plot,
+    },step=0)
+
+    wandb.log(
+    {
+        # Global action stats
+        "action/global_mean": ds_act_mean,
+        "action/global_std":  ds_act_std,
+        "action/global_min":  ds_act_min,
+        "action/global_max":  ds_act_max,
+        "action/max_action":  float(max_action),
+
+        # Histogram of all action values
+        "action/hist": wandb.Histogram(ds_actions.flatten()),
+
+        # Per-dimension stats
+        #**{f"action/mean_dim_{i}": float(act_mean[i]) for i in range(action_dim)},
+        #**{f"action/std_dim_{i}":  float(act_std[i])  for i in range(action_dim)},
+        #**{f"action/min_dim_{i}":  float(act_min[i])  for i in range(action_dim)},
+        #**{f"action/max_dim_{i}":  float(act_max[i])  for i in range(action_dim)},
+
+        "action/mean_per_dim_plot": act_mean_plot,
+        "action/std_per_dim_plot":  act_std_plot,
+        "action/min_per_dim_plot":  act_min_plot,
+        "action/max_per_dim_plot":  act_max_plot,
+
+    },step=0)
     # -------------------------------------------
 
     evaluations = []
-    online_eval = OnlineEval(task_name="anymal_d_flat")
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=27)
     start_time = time.time()
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)), desc="Training CQL"):
@@ -1033,7 +1165,7 @@ def train(config: TrainConfig):
                 seed=config.seed,
             )
             """
-            eval_score,n_eps_evaluated = online_eval.eval_actor_isaac(
+            eval_score,n_eps_evaluated,scaled_rew_terms_avg = online_eval.eval_actor_isaac(
                                             actor=actor,
                                             #task_name="anymal_c_flat",
                                             device=config.device,
@@ -1060,9 +1192,19 @@ def train(config: TrainConfig):
                     os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                 )
             
+            """
             wandb.log(
                 #{"d4rl_normalized_score": normalized_eval_score},
                 {"isaac_reward": eval_score},
+                step=trainer.total_it,
+            )
+            """
+            wandb.log(
+                {
+                    "isaac_reward": eval_score,
+                    "num_eval_episodes": n_eps_evaluated,
+                    **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
+                },
                 step=trainer.total_it,
             )
 
