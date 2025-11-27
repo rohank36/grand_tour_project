@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 #import d4rl
 #import gym
 import h5py
+from eval_isaac_v2 import OnlineEval
 import numpy as np
 import pyrallis
 import torch
@@ -23,11 +24,11 @@ from tqdm import trange
 @dataclass
 class TrainConfig:
     # wandb project name
-    project: str = "CORL"
+    project: str = "grand_tour"
     # wandb group name
-    group: str = "EDAC-D4RL"
+    group: str = "edac"
     # wandb run name
-    name: str = "EDAC"
+    name: str = "edac-pp"
     # actor and critic hidden dim
     hidden_dim: int = 256
     # critic ensemble size
@@ -74,10 +75,10 @@ class TrainConfig:
     # frequency of metrics logging to the wandb
     log_every: int = 100
     # training device
-    device: str = "cpu"
+    device: str = "cuda"
 
     def __post_init__(self):
-        self.name = f"{self.name}-{self.env_name}-{str(uuid.uuid4())[:8]}"
+        self.name = f"{self.name}-{str(uuid.uuid4())[:8]}"
         if self.checkpoints_path is not None:
             self.checkpoints_path = os.path.join(self.checkpoints_path, self.name)
 
@@ -98,7 +99,7 @@ def wandb_init(config: dict) -> None:
         group=config["group"],
         name=config["name"],
     )
-    wandb.run.save()
+    #wandb.run.save()
 
 
 def load_hdf5_dataset(path: str) -> Dict[str, np.ndarray]:
@@ -296,6 +297,12 @@ class Actor(nn.Module):
         state = torch.tensor(state, device=device, dtype=torch.float32)
         action = self(state, deterministic=deterministic)[0].cpu().numpy()
         return action
+    
+    @torch.no_grad()
+    def act_inference(self, observations: torch.Tensor) -> torch.Tensor:
+        with torch.no_grad():
+            actions, _ = self(observations, deterministic=True)  # deterministic = True for eval
+        return actions
 
 
 class VectorizedCritic(nn.Module):
@@ -581,15 +588,20 @@ def train(config: TrainConfig):
     set_seed(config.train_seed, deterministic_torch=config.deterministic_torch)
     wandb_init(asdict(config))
 
-    # data, evaluation, env setup
-    eval_env = wrap_env(gym.make(config.env_name))
-    state_dim = eval_env.observation_space.shape[0]
-    action_dim = eval_env.action_space.shape[0]
+    dataset = load_hdf5_dataset("offline_dataset_pp.hdf5")
 
-    d4rl_dataset = d4rl.qlearning_dataset(eval_env)
+    # data, evaluation, env setup
+    #eval_env = wrap_env(gym.make(config.env_name))
+    #state_dim = eval_env.observation_space.shape[0]
+    #action_dim = eval_env.action_space.shape[0]
+
+    #d4rl_dataset = d4rl.qlearning_dataset(eval_env)
+
+    state_dim = dataset["observations"].shape[1]
+    action_dim = dataset["actions"].shape[1]
 
     if config.normalize_reward:
-        modify_reward(d4rl_dataset, config.env_name)
+        modify_reward(dataset, config.env_name)
 
     buffer = ReplayBuffer(
         state_dim=state_dim,
@@ -597,7 +609,7 @@ def train(config: TrainConfig):
         buffer_size=config.buffer_size,
         device=config.device,
     )
-    buffer.load_d4rl_dataset(d4rl_dataset)
+    buffer.load_d4rl_dataset(dataset)
 
     # Actor & Critic setup
     actor = Actor(state_dim, action_dim, config.hidden_dim, config.max_action)
@@ -630,6 +642,7 @@ def train(config: TrainConfig):
             pyrallis.dump(config, f)
 
     total_updates = 0.0
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed)
     for epoch in trange(config.num_epochs, desc="Training"):
         # training
         for _ in trange(config.num_updates_on_epoch, desc="Epoch", leave=False):
@@ -643,6 +656,7 @@ def train(config: TrainConfig):
 
         # evaluation
         if epoch % config.eval_every == 0 or epoch == config.num_epochs - 1:
+            """
             eval_returns = eval_actor(
                 env=eval_env,
                 actor=actor,
@@ -650,15 +664,23 @@ def train(config: TrainConfig):
                 seed=config.eval_seed,
                 device=config.device,
             )
+            """
+            eval_score,n_eps_evaluated,scaled_rew_terms_avg = online_eval.eval_actor_isaac(
+                                            actor=actor,
+                                            device=config.device,
+                                        )
             eval_log = {
-                "eval/reward_mean": np.mean(eval_returns),
-                "eval/reward_std": np.std(eval_returns),
+                "eval/score": eval_score,
+                "eval/n_eps": n_eps_evaluated,
+                **{f"eval/reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
                 "epoch": epoch,
             }
+            """
             if hasattr(eval_env, "get_normalized_score"):
                 normalized_score = eval_env.get_normalized_score(eval_returns) * 100.0
                 eval_log["eval/normalized_score_mean"] = np.mean(normalized_score)
                 eval_log["eval/normalized_score_std"] = np.std(normalized_score)
+            """
 
             wandb.log(eval_log)
 
