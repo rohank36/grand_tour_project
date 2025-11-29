@@ -150,7 +150,8 @@ class OnlineEval:
                 #logger.plot_states(model_dir)
 
             if 0 < i < stop_rew_log:
-                if infos["episode"]:
+                #if infos["episode"]:
+                if "episode" in infos and infos["episode"]:
                     num_episodes = torch.sum(env.reset_buf).item()
                     if num_episodes > 0:
                         logger.log_rewards(infos["episode"], num_episodes)
