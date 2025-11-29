@@ -16,7 +16,6 @@ import pyrallis
 
 import wandb
 from tqdm import tqdm
-#from eval_isaac_v2 import eval_actor_isaac
 from eval_isaac_v2 import OnlineEval
 import time
 
@@ -35,29 +34,29 @@ class TrainConfig:
     seed: int = 0  # Sets Gym, PyTorch and Numpy seeds
     eval_seed: int = 27 # sets seed for online eval
     #eval_freq: int = int(5e3)  # How often (time steps) we evaluate
-    eval_freq: int = int(1000) 
+    eval_freq: int = int(1e4) 
     n_episodes: int = 10  # How many episodes run during evaluation
     #max_timesteps: int = int(1e6)  # Max time steps to run environment
-    max_timesteps: int = int(5e3) # FOR TESTING
+    max_timesteps: int = int(5e5) # FOR TESTING
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
     batch_size: int = 256  # Batch size for all networks
     discount: float = 0.99  # Discount factor
-    alpha_multiplier: float = 1.0  # Multiplier for alpha in loss
+    alpha_multiplier: float = 0.1  # Multiplier for alpha in loss
     use_automatic_entropy_tuning: bool = False  # Tune entropy
     backup_entropy: bool = False  # Use backup entropy
     policy_lr: float = 3e-5  # Policy learning rate
-    qf_lr: float = 3e-4  # Critics learning rate
-    soft_target_update_rate: float = 5e-3  # Target network update rate
+    qf_lr: float = 1e-4   # Critics learning rate
+    soft_target_update_rate: float = 1e-3   # Target network update rate
     target_update_period: int = 1  # Frequency of target nets updates
     cql_n_actions: int = 10  # Number of sampled actions
     cql_importance_sample: bool = True  # Use importance sampling
-    cql_lagrange: bool = True  # Use Lagrange version of CQL
+    cql_lagrange: bool = False  # Use Lagrange version of CQL
     cql_target_action_gap: float = 1.0 # Action gap
     cql_temp: float = 1.0  # CQL temperature
     cql_alpha: float = 1.0  # Minimal Q weight
-    cql_max_target_backup: bool = True  # Use max target backup
+    cql_max_target_backup: bool = False  # Use max target backup
     cql_clip_diff_min: float = -100  # Q-function lower loss clipping
     cql_clip_diff_max: float = 100  # Q-function upper loss clipping
     orthogonal_init: bool = True  # Orthogonal initialization
@@ -1169,7 +1168,6 @@ def train(config: TrainConfig):
         wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
         
-        """
         if (t + 1) % config.eval_freq == 0:
             eval_score,n_eps_evaluated,scaled_rew_terms_avg = online_eval.eval_actor_isaac(actor=actor,device=config.device,)
             print("---------------------------------------")
@@ -1191,7 +1189,7 @@ def train(config: TrainConfig):
                 },
                 step=trainer.total_it,
             )
-        """
+
     end_time = time.time()
     training_time_minutes = (end_time - start_time) / 60 
     print(f"\n\n")
