@@ -192,7 +192,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
 
     up_axis_idx = 2 # 2 for z, 1 for y -> adapt gravity accordingly
     gravity_vec = get_axis_params(-1., up_axis_idx)
-    base_quat =  imu["orien"] # assumes quaternion that rotates body --> world 
+    #base_quat =  imu["orien"] # assumes quaternion that rotates body --> world 
+    base_quat = est["pose_orien"]
     projected_gravity = quat_rotate_inverse(base_quat, gravity_vec) # (T,3)
 
     base_lin_vel = est["twist_lin"]          # (T, 3)
