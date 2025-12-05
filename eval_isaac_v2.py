@@ -13,7 +13,7 @@ import torch
 from tqdm import tqdm
 
 from reward import rewards
-from cql import compute_mean_std, normalize_states, load_hdf5_dataset
+from utils import compute_mean_std, load_hdf5_dataset
 
 class OnlineEval:
 

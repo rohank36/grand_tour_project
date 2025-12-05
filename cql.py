@@ -17,6 +17,7 @@ import pyrallis
 import wandb
 from tqdm import tqdm
 from eval_isaac_v2 import OnlineEval
+from utils import compute_mean_std, normalize_states, load_hdf5_dataset
 import time
 
 import torch
@@ -37,7 +38,7 @@ class TrainConfig:
     eval_freq: int = int(1e4) 
     n_episodes: int = 10  # How many episodes run during evaluation
     #max_timesteps: int = int(1e6)  # Max time steps to run environment
-    max_timesteps: int = int(5e5) # FOR TESTING
+    max_timesteps: int = int(250000) # FOR TESTING
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
@@ -86,15 +87,17 @@ def soft_update(target: nn.Module, source: nn.Module, tau: float):
     for target_param, source_param in zip(target.parameters(), source.parameters()):
         target_param.data.copy_((1 - tau) * target_param.data + tau * source_param.data)
 
-
+"""
 def compute_mean_std(states: np.ndarray, eps: float) -> Tuple[np.ndarray, np.ndarray]:
     mean = states.mean(0)
     std = states.std(0) + eps
     return mean, std
+"""
 
-
+"""
 def normalize_states(states: np.ndarray, mean: np.ndarray, std: np.ndarray):
     return (states - mean) / std
+"""
 
 """
 def wrap_env(
@@ -119,7 +122,7 @@ def wrap_env(
     return env
 
 """
-
+"""
 def load_hdf5_dataset(path: str) -> Dict[str, np.ndarray]:
     with h5py.File(path, "r") as f:
         dataset = {
@@ -130,6 +133,7 @@ def load_hdf5_dataset(path: str) -> Dict[str, np.ndarray]:
             "terminals":         f["terminals"][()],
         }
     return dataset
+"""
 
 
 class ReplayBuffer:
