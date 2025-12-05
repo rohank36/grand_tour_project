@@ -225,6 +225,9 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
     cmd_ang = cmd["angular"]                 # (T, 3)
+    # Convert commands to body frame 
+    cmd_lin_body = quat_rotate_inverse(base_quat, cmd_lin)
+    cmd_ang_body = quat_rotate_inverse(base_quat, cmd_ang)
     
     """
     From Grand Tour Github: 
@@ -287,8 +290,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         est["LH_FOOT_contact"],
         est["RF_FOOT_contact"],
         est["RH_FOOT_contact"],
-        cmd_lin,
-        cmd_ang,
+        cmd_lin_body,
+        cmd_ang_body,
         torques,  # Use clipped torques instead of est["joint_efforts"]
         len(obs)
     )

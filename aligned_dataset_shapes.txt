@@ -346,4 +346,4 @@ next_observations: <class 'numpy.ndarray'> (852249, 48)
 rewards: <class 'numpy.ndarray'> (852249,)
 terminals: <class 'numpy.ndarray'> (852249,)
 Total episodes: 853
-Median Episode Return: 25.98146322716498
+Median Episode Return: 25.80169853197373
