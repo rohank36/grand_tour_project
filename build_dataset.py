@@ -225,22 +225,21 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
     cmd_ang = cmd["angular"]                 # (T, 3)
-
-    base_lin_vel = scale_lin_vel(base_lin_vel)
-    base_ang_vel = scale_ang_vel(base_ang_vel)
-    joint_pos = scale_joint_pos(joint_pos)
-    joint_vel = scale_joint_vel(joint_vel)
     
     """
     From Grand Tour Github: 
     Joint Naming 0-11: ['LF_HAA', 'LF_HFE', 'LF_KFE', 'RF_HAA', 'RF_HFE', 'RF_KFE', 'LH_HAA', 'LH_HFE', 'LH_KFE', 'RH_HAA', 'RH_HFE', 'RH_KFE']
     """
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
+
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
-    actions = make_actions_compatible(actions)
+    actions_delta = make_actions_compatible(actions)
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
+
+    prev_actions_delta = np.zeros_like(actions_delta)
+    prev_actions_delta[1:] = actions_delta[:-1]
 
     # select correct command dimensions to match isaac
     # cmd_lin is [vx, vy, vz], need [vx, vy] 
@@ -249,19 +248,18 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     commands_xy_yaw = np.concatenate([
         cmd_lin[:, 0:2],   # Linear X and Y
         cmd_ang[:, 2:3]    # Angular Yaw
-    ], axis=-1)   
-    commands_xy_yaw = scale_commands(commands_xy_yaw)         
+    ], axis=-1)      
 
     # re order concatenation to match Isaac Gym standard
     # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
     obs = np.concatenate([
-        base_lin_vel,       # 3
-        base_ang_vel,       # 3
+        scale_lin_vel(base_lin_vel),       # 3
+        scale_ang_vel(base_ang_vel),       # 3
         projected_gravity,  # 3
-        commands_xy_yaw,    # 3  
-        joint_pos,          # 12
-        joint_vel,          # 12
-        prev_actions,       # 12
+        scale_commands(commands_xy_yaw),    # 3  
+        scale_joint_pos(joint_pos),          # 12
+        scale_joint_vel(joint_vel),          # 12
+        prev_actions_delta,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
     #TODO: if online eval not working correclty, try using actions instead of prev_actions to match Isaac exactly
