@@ -130,6 +130,7 @@ class OnlineEval:
 
         # Accumulate observation stats for logging
         obs_stats_list = []
+        obs_all_list = []  # Store all observations for per-dimension stats
 
         # max_episode_length = 1001
         for i in range(num_repetitions * int(max_episode_length)+2):
@@ -148,6 +149,8 @@ class OnlineEval:
                     'min': obs.min().item(),
                     'max': obs.max().item(),
                 })
+                # Store observations for per-dimension analysis
+                obs_all_list.append(obs.cpu().numpy())
             
             actions = actor.act_inference(obs_normalized.detach())
             obs, _, rews, dones, infos = env.step(actions.detach())
@@ -199,6 +202,15 @@ class OnlineEval:
             avg_obs_min = np.mean([s['min'] for s in obs_stats_list])
             avg_obs_max = np.mean([s['max'] for s in obs_stats_list])
             
+            # Compute per-dimension mean from all collected observations
+            if obs_all_list:
+                obs_all_array = np.concatenate(obs_all_list, axis=0)  # Shape: (total_steps * num_envs, obs_dim)
+                obs_mean_per_dim = obs_all_array.mean(axis=0)  # Shape: (obs_dim,)
+                # Create dict with per-dimension means
+                obs_mean_per_dim_dict = {f'isaac_obs_mean_dim_{i}': float(val) for i, val in enumerate(obs_mean_per_dim)}
+            else:
+                obs_mean_per_dim_dict = {}
+            
             eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
             
             # Return observation stats along with other eval results
@@ -207,6 +219,7 @@ class OnlineEval:
                 'isaac_obs_std': avg_obs_std,
                 'isaac_obs_min': avg_obs_min,
                 'isaac_obs_max': avg_obs_max,
+                **obs_mean_per_dim_dict,  # Add per-dimension means
             }
             
             return eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats

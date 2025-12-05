@@ -814,6 +814,10 @@ class ContinuousCQL:
             obs_std = observations.std().item()
             obs_min = observations.min().item()
             obs_max = observations.max().item()
+            
+            # Compute per-dimension observation means
+            obs_mean_per_dim = observations.mean(dim=0).cpu().numpy()  # Shape: (obs_dim,)
+            obs_mean_per_dim_dict = {f"obs_train/mean_dim_{i}": float(val) for i, val in enumerate(obs_mean_per_dim)}
 
         alpha, alpha_loss = self._alpha_and_alpha_loss(observations, log_pi)
 
@@ -835,6 +839,7 @@ class ContinuousCQL:
             obs_std=obs_std,
             obs_min=obs_min,
             obs_max=obs_max,
+            **obs_mean_per_dim_dict,  # Add per-dimension observation means
         )
 
         """ Q function loss """
