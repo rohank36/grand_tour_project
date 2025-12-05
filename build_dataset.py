@@ -273,6 +273,10 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     ), dim=-1)
     """
     
+    # Clip torques to match Isaac Gym's torque limits (80.0 N⋅m for all joints from URDF)
+    torque_limits = 80.0  # N⋅m, from ANYmal D URDF effort limits
+    torques = np.clip(est["joint_efforts"], -torque_limits, torque_limits)
+    
     rews = compute_rewards_offline(
         base_ang_vel,
         base_lin_vel,
@@ -285,7 +289,7 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         est["RH_FOOT_contact"],
         cmd_lin,
         cmd_ang,
-        est["joint_efforts"],
+        torques,  # Use clipped torques instead of est["joint_efforts"]
         len(obs)
     )
 
