@@ -233,13 +233,10 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
 
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
-    actions_delta = make_actions_compatible(actions)
+    actions = make_actions_compatible(actions)
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
-
-    prev_actions_delta = np.zeros_like(actions_delta)
-    prev_actions_delta[1:] = actions_delta[:-1]
 
     # select correct command dimensions to match isaac
     # cmd_lin is [vx, vy, vz], need [vx, vy] 
@@ -259,10 +256,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         scale_commands(commands_xy_yaw),    # 3  
         scale_joint_pos(joint_pos),          # 12
         scale_joint_vel(joint_vel),          # 12
-        prev_actions_delta,       # 12
+        prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
-
-    #TODO: if online eval not working correclty, try using actions instead of prev_actions to match Isaac exactly
 
     """
     From anymal legged gym source code:
