@@ -5,7 +5,7 @@ warnings.filterwarnings('ignore')
 import numpy as np
 from reward import compute_rewards_offline
 import h5py
-
+from isaac_compatibility import *
 
 def _to_np(x):
     return np.asarray(x[:]) if hasattr(x, '__getitem__') and not isinstance(x, np.ndarray) else np.asarray(x)
@@ -170,6 +170,7 @@ def get_axis_params(value, axis_idx):
 def quat_rotate_inverse(q, v):
     """
     Rotate vector(s) v by the inverse of quaternion(s) q.
+    Matches Isaac Gym's PyTorch implementation.
     q: (..., 4) array [x, y, z, w]
     v: (..., 3) array
     returns: rotated v in same shape
@@ -179,8 +180,19 @@ def quat_rotate_inverse(q, v):
 
     q_vec = q[..., :3]         # (x, y, z)
     q_w = q[..., 3]            # w
-    t = 2.0 * np.cross(q_vec, v)
-    return v - q_w[..., None] * t + np.cross(q_vec, t)
+    
+    # Match PyTorch implementation:
+    # a = v * (2.0 * q_w^2 - 1.0)
+    # b = 2.0 * q_w * cross(q_vec, v)
+    # c = 2.0 * q_vec * (q_vec · v)
+    # return a - b + c
+    
+    a = v * (2.0 * q_w[..., None] ** 2 - 1.0)
+    b = 2.0 * q_w[..., None] * np.cross(q_vec, v)
+    # Dot product: q_vec · v, then broadcast to multiply with q_vec
+    dot_product = np.sum(q_vec * v, axis=-1, keepdims=True)  # (..., 1)
+    c = 2.0 * q_vec * dot_product
+    return a - b + c
 
 def build_offline_dataset(data, episode_len_s=20, hz=50):
     """Convert aligned ANYmal sensor data into offline RL dataset."""
@@ -189,22 +201,43 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     act = data["sensors"]["anymal_state_actuator"]
     cmd = data["sensors"]["anymal_command_twist"]
     imu = data["sensors"]["anymal_imu"]
+    odom = data["sensors"]["anymal_state_odometry"]
 
+    # Construct root_states from odometry data (all in world frame)
+    # root_states structure: [pos(3), quat(4), lin_vel(3), ang_vel(3)] = 13 dims
+    root_states = np.concatenate([
+        odom["pose_pos"],        # [0:3] Position [x, y, z] in world frame
+        odom["pose_orien"],      # [3:7] Quaternion [x, y, z, w] in world frame
+        odom["twist_lin"],       # [7:10] Linear Velocity [vx, vy, vz] in world frame
+        odom["twist_ang"],       # [10:13] Angular Velocity [wx, wy, wz] in world frame
+    ], axis=-1)  # (T, 13)
+
+    
     up_axis_idx = 2 # 2 for z, 1 for y -> adapt gravity accordingly
     gravity_vec = get_axis_params(-1., up_axis_idx)
-    #base_quat =  imu["orien"] # assumes quaternion that rotates body --> world 
-    base_quat = est["pose_orien"]
-    projected_gravity = quat_rotate_inverse(base_quat, gravity_vec) # (T,3)
 
-    base_lin_vel = est["twist_lin"]          # (T, 3)
-    base_ang_vel = est["twist_ang"]          # (T, 3)
+    # Convert to body frame (following Isaac Gym convention)
+    base_quat = root_states[:, 3:7]  # (T, 4)
+    base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])  # (T, 3) - now in body frame
+    base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])  # (T, 3) - now in body frame
+    projected_gravity = quat_rotate_inverse(base_quat, gravity_vec)  # (T, 3)
     joint_pos = est["joint_positions"]       # (T, 12) # need to substract default_dos_pos here?
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
     cmd_ang = cmd["angular"]                 # (T, 3)
 
+    base_lin_vel = scale_lin_vel(base_lin_vel)
+    base_ang_vel = scale_ang_vel(base_ang_vel)
+    joint_pos = scale_joint_pos(joint_pos)
+    joint_vel = scale_joint_vel(joint_vel)
+    
+    """
+    From Grand Tour Github: 
+    Joint Naming 0-11: ['LF_HAA', 'LF_HFE', 'LF_KFE', 'RF_HAA', 'RF_HFE', 'RF_KFE', 'LH_HAA', 'LH_HFE', 'LH_KFE', 'RH_HAA', 'RH_HFE', 'RH_KFE']
+    """
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
+    actions = make_actions_compatible(actions)
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
@@ -216,7 +249,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     commands_xy_yaw = np.concatenate([
         cmd_lin[:, 0:2],   # Linear X and Y
         cmd_ang[:, 2:3]    # Angular Yaw
-    ], axis=-1)            
+    ], axis=-1)   
+    commands_xy_yaw = scale_commands(commands_xy_yaw)         
 
     # re order concatenation to match Isaac Gym standard
     # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
@@ -230,17 +264,20 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
+    #TODO: if online eval not working correclty, try using actions instead of prev_actions to match Isaac exactly
+
     """
-    obs = np.concatenate([
-        base_lin_vel,
-        base_ang_vel,
-        projected_gravity,
-        joint_pos,
-        joint_vel,
-        prev_actions,       
-        cmd_lin,
-        cmd_ang,
-    ], axis=-1)  # (T, obs_dim)
+    From anymal legged gym source code:
+
+    self.obs_buf = torch.cat((
+    self.base_lin_vel * self.obs_scales.lin_vel,        # 3 dims
+    self.base_ang_vel * self.obs_scales.ang_vel,          # 3 dims
+    self.projected_gravity,                               # 3 dims
+    self.commands[:, :3] * self.commands_scale,           # 3 dims (lin_vel_x, lin_vel_y, ang_vel_yaw)
+    (self.dof_pos - self.default_dof_pos) * self.obs_scales.dof_pos,  # 12 dims
+    self.dof_vel * self.obs_scales.dof_vel,              # 12 dims
+    self.actions                                         # 12 dims
+    ), dim=-1)
     """
     
     rews = compute_rewards_offline(

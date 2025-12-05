@@ -804,6 +804,12 @@ class ContinuousCQL:
             action_std = new_actions.std().item()
             action_min = new_actions.min().item()
             action_max = new_actions.max().item()
+            
+            # Log observation stats during training
+            obs_mean = observations.mean().item()
+            obs_std = observations.std().item()
+            obs_min = observations.min().item()
+            obs_max = observations.max().item()
 
         alpha, alpha_loss = self._alpha_and_alpha_loss(observations, log_pi)
 
@@ -821,6 +827,10 @@ class ContinuousCQL:
             action_std=action_std,
             action_min=action_min,
             action_max=action_max,
+            obs_mean=obs_mean,
+            obs_std=obs_std,
+            obs_min=obs_min,
+            obs_max=obs_max,
         )
 
         """ Q function loss """
@@ -1158,7 +1168,7 @@ def train(config: TrainConfig):
     },step=0)
     # -------------------------------------------
 
-    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed)
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=False)
     start_time = time.time()
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)), desc="Training CQL"):
@@ -1169,7 +1179,14 @@ def train(config: TrainConfig):
         # Evaluate episode
         
         if (t + 1) % config.eval_freq == 0:
-            eval_score,n_eps_evaluated,scaled_rew_terms_avg = online_eval.eval_actor_isaac(actor=actor,device=config.device,)
+            result = online_eval.eval_actor_isaac(actor=actor, device=config.device)
+            if len(result) == 4:
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats = result
+            else:
+                # Backward compatibility
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg = result
+                obs_stats = {}
+            
             print("---------------------------------------")
             print(
                 f"Evaluation over {n_eps_evaluated} episodes: {eval_score:.3f} "
@@ -1181,12 +1198,18 @@ def train(config: TrainConfig):
                     trainer.state_dict(),
                     os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                 )
+            
+            log_dict_eval = {
+                "isaac_reward": eval_score,
+                "num_eval_episodes": n_eps_evaluated,
+                **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
+            }
+            # Add observation stats if available - use clear prefix to group Isaac Gym eval metrics
+            if obs_stats:
+                log_dict_eval.update({f"isaac_eval/{k}": v for k, v in obs_stats.items()})
+            
             wandb.log(
-                {
-                    "isaac_reward": eval_score,
-                    "num_eval_episodes": n_eps_evaluated,
-                    **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
-                },
+                log_dict_eval,
                 step=trainer.total_it,
             )
 

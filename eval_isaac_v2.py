@@ -13,10 +13,11 @@ import torch
 from tqdm import tqdm
 
 from reward import rewards
+from cql import compute_mean_std, normalize_states, load_hdf5_dataset
 
 class OnlineEval:
 
-    def __init__(self,task_name,seed):
+    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=True):
         args = get_args()
         args.seed = seed
         args.task = task_name
@@ -72,6 +73,12 @@ class OnlineEval:
         physics_base = 0.005
         self.dt = decimation * physics_base
 
+        # Load normalization stats from the same dataset used for training
+        self.normalize = normalize
+        if self.normalize:
+            dataset = load_hdf5_dataset(dataset_path)
+            self.state_mean, self.state_std = compute_mean_std(dataset["observations"], eps=1e-3)
+
     def calculate_total_reward(self,logger: Logger):
         avg_total_ep_rew = 0
         scaled_rew_terms_avg = {}
@@ -116,10 +123,33 @@ class OnlineEval:
 
         episode_lengths = torch.zeros(num_envs, dtype=torch.long, device=env.device)
 
+        # Convert normalization stats to torch tensors on the correct device
+        if self.normalize:
+            state_mean_torch = torch.tensor(self.state_mean, dtype=torch.float32, device=device)
+            state_std_torch = torch.tensor(self.state_std, dtype=torch.float32, device=device)
+
+        # Accumulate observation stats for logging
+        obs_stats_list = []
+
         # max_episode_length = 1001
         for i in range(num_repetitions * int(max_episode_length)+2):
         #for i in tqdm(range(num_repetitions * int(max_episode_length)+2),desc="Online IG Eval"):
-            actions = actor.act_inference(obs.detach())
+            # Normalize observations before feeding to actor
+            if self.normalize:
+                obs_normalized = (obs - state_mean_torch) / state_std_torch
+            else:
+                obs_normalized = obs
+            
+            # Collect observation stats (from raw Isaac Gym observations)
+            with torch.no_grad():
+                obs_stats_list.append({
+                    'mean': obs.mean().item(),
+                    'std': obs.std().item(),
+                    'min': obs.min().item(),
+                    'max': obs.max().item(),
+                })
+            
+            actions = actor.act_inference(obs_normalized.detach())
             obs, _, rews, dones, infos = env.step(actions.detach())
 
             episode_lengths = torch.clamp(episode_lengths + 1, max=max_episode_length)
@@ -162,7 +192,27 @@ class OnlineEval:
         torch.cuda.synchronize()  # Ensure all CUDA operations are completed
         actor.train() 
 
-        return self.calculate_total_reward(logger)
+        # Compute average observation stats across all steps
+        if obs_stats_list:
+            avg_obs_mean = np.mean([s['mean'] for s in obs_stats_list])
+            avg_obs_std = np.mean([s['std'] for s in obs_stats_list])
+            avg_obs_min = np.mean([s['min'] for s in obs_stats_list])
+            avg_obs_max = np.mean([s['max'] for s in obs_stats_list])
+            
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
+            
+            # Return observation stats along with other eval results
+            obs_stats = {
+                'isaac_obs_mean': avg_obs_mean,
+                'isaac_obs_std': avg_obs_std,
+                'isaac_obs_min': avg_obs_min,
+                'isaac_obs_max': avg_obs_max,
+            }
+            
+            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats
+        else:
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
+            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, {}
 
         
 
