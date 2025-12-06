@@ -38,7 +38,7 @@ class TrainConfig:
     eval_freq: int = int(1e4) 
     n_episodes: int = 10  # How many episodes run during evaluation
     #max_timesteps: int = int(1e6)  # Max time steps to run environment
-    max_timesteps: int = int(250000) # FOR TESTING
+    max_timesteps: int = int(100000) # FOR TESTING
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
@@ -68,6 +68,7 @@ class TrainConfig:
     reward_scale: float = 1.0  # Reward scale for normalization
     reward_bias: float = 0.0  # Reward bias for normalization
     policy_log_std_multiplier: float = 1.0  # Stochastic policy std multiplier
+    normalize_online_eval_obs: bool = True # Normalize online eval obs
     
     project: str = "grand_tour"  # wandb project name
     group: str = "CQL"  # wandb group name
@@ -1177,7 +1178,7 @@ def train(config: TrainConfig):
     },step=0)
     # -------------------------------------------
 
-    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=False)
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs)
     start_time = time.time()
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)), desc="Training CQL"):
