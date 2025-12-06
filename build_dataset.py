@@ -246,8 +246,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     # cmd_ang is [roll, pitch, yaw]. need [yaw]
     
     commands_xy_yaw = np.concatenate([
-        cmd_lin[:, 0:2],   # Linear X and Y
-        cmd_ang[:, 2:3]    # Angular Yaw
+        cmd_lin_body[:, 0:2],   # Linear X and Y
+        cmd_ang_body[:, 2:3]    # Angular Yaw
     ], axis=-1)      
 
     # re order concatenation to match Isaac Gym standard
@@ -353,9 +353,21 @@ def episode_returns(rewards, terminals):
     return np.array(episode_sums)
 
 
-for k in list(dataset.keys()):
-    print(f"{k}: {type(dataset[k])} {dataset[k].shape}")
-
-ep_ret = episode_returns(dataset["rewards"], dataset["terminals"])
-print(f"Total episodes: {len(ep_ret)}")
-print(f"Median Episode Return: {np.median(ep_ret)}")
+# Write dataset info to file and print
+with open(output_file, "a") as f:
+    f.write("\nBuilding Offline Dataset...\n")
+    f.write("\nOffline Dataset:\n")
+    for k in list(dataset.keys()):
+        info = f"{k}: {type(dataset[k])} {dataset[k].shape}\n"
+        print(info.strip())
+        f.write(info)
+    
+    ep_ret = episode_returns(dataset["rewards"], dataset["terminals"])
+    total_episodes = f"Total episodes: {len(ep_ret)}\n"
+    median_return = f"Median Episode Return: {np.median(ep_ret)}\n"
+    
+    print(total_episodes.strip())
+    print(median_return.strip())
+    
+    f.write(total_episodes)
+    f.write(median_return)
