@@ -275,6 +275,9 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     self.actions                                         # 12 dims
     ), dim=-1)
     """
+    # Add noise to observations 
+    obs = add_observation_noise(obs)
+    obs = clip_observations(obs)
     
     # Clip torques to match Isaac Gym's torque limits (80.0 N⋅m for all joints from URDF)
     torque_limits = 80.0  # N⋅m, from ANYmal D URDF effort limits

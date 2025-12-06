@@ -79,7 +79,7 @@ class OnlineEval:
             dataset = load_hdf5_dataset(dataset_path)
             self.state_mean, self.state_std = compute_mean_std(dataset["observations"], eps=1e-3)
 
-    """
+    
     def calculate_total_reward(self,logger: Logger):
         avg_total_ep_rew = 0
         scaled_rew_terms_avg = {}
@@ -102,7 +102,7 @@ class OnlineEval:
             avg_total_ep_rew += mean_total
         
         return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
-
+    """
     @torch.no_grad()
     def eval_actor_isaac(
         self,
