@@ -68,7 +68,7 @@ class TrainConfig:
     reward_scale: float = 1.0  # Reward scale for normalization
     reward_bias: float = 0.0  # Reward bias for normalization
     policy_log_std_multiplier: float = 1.0  # Stochastic policy std multiplier
-    normalize_online_eval_obs: bool = True # Normalize online eval obs
+    normalize_online_eval_obs: bool = False # Normalize online eval obs
     
     project: str = "grand_tour"  # wandb project name
     group: str = "CQL"  # wandb group name
