@@ -79,6 +79,7 @@ class OnlineEval:
             dataset = load_hdf5_dataset(dataset_path)
             self.state_mean, self.state_std = compute_mean_std(dataset["observations"], eps=1e-3)
 
+    """
     def calculate_total_reward(self,logger: Logger):
         avg_total_ep_rew = 0
         scaled_rew_terms_avg = {}
@@ -87,6 +88,18 @@ class OnlineEval:
             mean = np.sum(values_scaled) / logger.num_episodes
             scaled_rew_terms_avg[key] = mean
             avg_total_ep_rew += mean
+        
+        return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
+    """
+    def calculate_total_reward(self, logger: Logger):
+        avg_total_ep_rew = 0
+        scaled_rew_terms_avg = {}
+        for key, values in logger.rew_log.items():
+            mean_per_sec = np.sum(np.array(values)) / logger.num_episodes
+            # Convert to total episode reward
+            mean_total = mean_per_sec * self.env.max_episode_length_s
+            scaled_rew_terms_avg[key] = mean_total
+            avg_total_ep_rew += mean_total
         
         return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
 
