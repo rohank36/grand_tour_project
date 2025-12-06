@@ -810,6 +810,10 @@ class ContinuousCQL:
             action_min = new_actions.min().item()
             action_max = new_actions.max().item()
             
+            # Compute per-dimension action means
+            action_mean_per_dim = new_actions.mean(dim=0).cpu().numpy()  # Shape: (action_dim,)
+            action_mean_per_dim_dict = {f"action_train/mean_dim_{i}": float(val) for i, val in enumerate(action_mean_per_dim)}
+            
             # Log observation stats during training
             obs_mean = observations.mean().item()
             obs_std = observations.std().item()
@@ -836,6 +840,7 @@ class ContinuousCQL:
             action_std=action_std,
             action_min=action_min,
             action_max=action_max,
+            **action_mean_per_dim_dict,  # Add per-dimension action means
             obs_mean=obs_mean,
             obs_std=obs_std,
             obs_min=obs_min,

@@ -131,6 +131,9 @@ class OnlineEval:
         # Accumulate observation stats for logging
         obs_stats_list = []
         obs_all_list = []  # Store all observations for per-dimension stats
+        
+        # Accumulate action stats for logging
+        actions_all_list = []  # Store all actions for per-dimension stats
 
         # max_episode_length = 1001
         for i in range(num_repetitions * int(max_episode_length)+2):
@@ -153,6 +156,9 @@ class OnlineEval:
                 obs_all_list.append(obs.cpu().numpy())
             
             actions = actor.act_inference(obs_normalized.detach())
+            # Store actions for per-dimension analysis
+            with torch.no_grad():
+                actions_all_list.append(actions.cpu().numpy())
             obs, _, rews, dones, infos = env.step(actions.detach())
 
             episode_lengths = torch.clamp(episode_lengths + 1, max=max_episode_length)
@@ -211,6 +217,15 @@ class OnlineEval:
             else:
                 obs_mean_per_dim_dict = {}
             
+            # Compute per-dimension mean from all collected actions
+            if actions_all_list:
+                actions_all_array = np.concatenate(actions_all_list, axis=0)  # Shape: (total_steps * num_envs, action_dim)
+                actions_mean_per_dim = actions_all_array.mean(axis=0)  # Shape: (action_dim,)
+                # Create dict with per-dimension means
+                actions_mean_per_dim_dict = {f'isaac_action_mean_dim_{i}': float(val) for i, val in enumerate(actions_mean_per_dim)}
+            else:
+                actions_mean_per_dim_dict = {}
+            
             eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
             
             # Return observation stats along with other eval results
@@ -219,7 +234,8 @@ class OnlineEval:
                 'isaac_obs_std': avg_obs_std,
                 'isaac_obs_min': avg_obs_min,
                 'isaac_obs_max': avg_obs_max,
-                **obs_mean_per_dim_dict,  # Add per-dimension means
+                **obs_mean_per_dim_dict,  # Add per-dimension observation means
+                **actions_mean_per_dim_dict,  # Add per-dimension action means
             }
             
             return eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats
