@@ -85,7 +85,8 @@ class OnlineEval:
         Calculate mean reward from episode total rewards buffer and individual reward terms.
         Matches the approach in OnPolicyRunner where we accumulate per-step rewards
         and store episode totals, then compute the mean of episode totals.
-        Also computes mean of individual reward terms from episode infos.
+        Also computes mean of individual reward terms from episode infos (as normalized values,
+        matching OnPolicyRunner which logs them directly without conversion).
         """
         if len(rewbuffer) > 0:
             avg_total_ep_rew = np.mean(rewbuffer)
@@ -107,10 +108,10 @@ class OnlineEval:
                             value = value.item() if value.numel() == 1 else value.cpu().numpy()
                         values.append(float(value))
                     
-                    # Convert from per-second to episode total (infos["episode"] contains per-second values)
-                    # Then compute mean across all episodes
-                    episode_totals = [v * self.env.max_episode_length_s for v in values]
-                    scaled_rew_terms_avg[key] = np.mean(episode_totals)
+                    # Use values directly (matching OnPolicyRunner - no conversion)
+                    # infos["episode"] contains normalized values (divided by max_episode_length_s)
+                    # OnPolicyRunner logs these normalized values as-is
+                    scaled_rew_terms_avg[key] = np.mean(values)
         
         return avg_total_ep_rew, len(rewbuffer), scaled_rew_terms_avg
    
