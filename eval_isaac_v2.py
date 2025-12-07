@@ -95,25 +95,32 @@ class OnlineEval:
             avg_total_ep_rew = 0.0
             avg_episode_length = 0.0
         
-        # Compute mean of individual reward terms (matching OnPolicyRunner approach)
+        # Compute mean of individual reward terms (matching OnPolicyRunner approach exactly, using numpy)
         scaled_rew_terms_avg = {}
         if ep_infos:
-            # Get all reward term keys from first episode info
+            # Process all keys in ep_infos (matching OnPolicyRunner which processes all keys)
             for key in ep_infos[0].keys():
-                if 'rew' in key:  # Only process reward terms
-                    # Collect all values for this key across all episodes
-                    values = []
-                    for ep_info in ep_infos:
-                        value = ep_info[key]
-                        # Handle tensor or scalar values
-                        if isinstance(value, torch.Tensor):
-                            value = value.item() if value.numel() == 1 else value.cpu().numpy()
-                        values.append(float(value))
-                    
-                    # Use values directly (matching OnPolicyRunner - no conversion)
-                    # infos["episode"] contains normalized values (divided by max_episode_length_s)
-                    # OnPolicyRunner logs these normalized values as-is
-                    scaled_rew_terms_avg[key] = np.mean(values)
+                infotensor = np.array([])
+                for ep_info in ep_infos:
+                    # Handle scalar and zero dimensional tensor/array infos (exactly like OnPolicyRunner)
+                    value = ep_info[key]
+                    # Convert torch tensor to numpy if needed
+                    if isinstance(value, torch.Tensor):
+                        value = value.cpu().numpy()
+                    # Convert to numpy array if not already
+                    if not isinstance(value, np.ndarray):
+                        value = np.array([value])
+                    # Handle zero dimensional arrays
+                    if value.ndim == 0:
+                        value = np.expand_dims(value, 0)
+                    # Concatenate to infotensor
+                    if len(infotensor) == 0:
+                        infotensor = value
+                    else:
+                        infotensor = np.concatenate((infotensor, value))
+                # Compute mean (matching OnPolicyRunner's torch.mean)
+                value = np.mean(infotensor)
+                scaled_rew_terms_avg[key] = float(value)
         
         return avg_total_ep_rew, len(rewbuffer), scaled_rew_terms_avg, avg_episode_length
    
