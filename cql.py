@@ -61,7 +61,7 @@ class TrainConfig:
     cql_clip_diff_min: float = -100  # Q-function lower loss clipping
     cql_clip_diff_max: float = 100  # Q-function upper loss clipping
     orthogonal_init: bool = True  # Orthogonal initialization
-    normalize: bool = True  # Normalize states
+    normalize: bool = False  # Normalize states
     normalize_reward: bool = False  # Normalize reward
     q_n_hidden_layers: int = 3  # Number of hidden layers in Q networks
     bc_steps: int = int(5e4)  # Number of BC steps at start
