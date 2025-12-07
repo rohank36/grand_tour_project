@@ -80,29 +80,40 @@ class OnlineEval:
             self.state_mean, self.state_std = compute_mean_std(dataset["observations"], eps=1e-3)
 
     
-    def calculate_total_reward(self,logger: Logger):
-        avg_total_ep_rew = 0
-        scaled_rew_terms_avg = {}
-        for key,values in logger.rew_log.items():
-            values_scaled = np.array(values) * self.scales_dict[key.replace("rew_", "")] * self.dt
-            mean = np.sum(values_scaled) / logger.num_episodes
-            scaled_rew_terms_avg[key] = mean
-            avg_total_ep_rew += mean
+    def calculate_total_reward(self, rewbuffer, ep_infos):
+        """
+        Calculate mean reward from episode total rewards buffer and individual reward terms.
+        Matches the approach in OnPolicyRunner where we accumulate per-step rewards
+        and store episode totals, then compute the mean of episode totals.
+        Also computes mean of individual reward terms from episode infos.
+        """
+        if len(rewbuffer) > 0:
+            avg_total_ep_rew = np.mean(rewbuffer)
+        else:
+            avg_total_ep_rew = 0.0
         
-        return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
-    """
-    def calculate_total_reward(self, logger: Logger):
-        avg_total_ep_rew = 0
+        # Compute mean of individual reward terms (matching OnPolicyRunner approach)
         scaled_rew_terms_avg = {}
-        for key, values in logger.rew_log.items():
-            mean_per_sec = np.sum(np.array(values)) / logger.num_episodes
-            # Convert to total episode reward
-            mean_total = mean_per_sec * self.env.max_episode_length_s
-            scaled_rew_terms_avg[key] = mean_total
-            avg_total_ep_rew += mean_total
+        if ep_infos:
+            # Get all reward term keys from first episode info
+            for key in ep_infos[0].keys():
+                if 'rew' in key:  # Only process reward terms
+                    # Collect all values for this key across all episodes
+                    values = []
+                    for ep_info in ep_infos:
+                        value = ep_info[key]
+                        # Handle tensor or scalar values
+                        if isinstance(value, torch.Tensor):
+                            value = value.item() if value.numel() == 1 else value.cpu().numpy()
+                        values.append(float(value))
+                    
+                    # Convert from per-second to episode total (infos["episode"] contains per-second values)
+                    # Then compute mean across all episodes
+                    episode_totals = [v * self.env.max_episode_length_s for v in values]
+                    scaled_rew_terms_avg[key] = np.mean(episode_totals)
         
-        return avg_total_ep_rew, logger.num_episodes, scaled_rew_terms_avg
-    """
+        return avg_total_ep_rew, len(rewbuffer), scaled_rew_terms_avg
+   
     @torch.no_grad()
     def eval_actor_isaac(
         self,
@@ -141,6 +152,11 @@ class OnlineEval:
             state_mean_torch = torch.tensor(self.state_mean, dtype=torch.float32, device=device)
             state_std_torch = torch.tensor(self.state_std, dtype=torch.float32, device=device)
 
+        # Track cumulative rewards per environment (matching OnPolicyRunner approach)
+        cur_reward_sum = torch.zeros(num_envs, dtype=torch.float, device=device)
+        rewbuffer = []  # Store total episode rewards
+        ep_infos = []  # Store episode info dicts for individual reward terms
+
         # Accumulate observation stats for logging
         obs_stats_list = []
         obs_all_list = []  # Store all observations for per-dimension stats
@@ -174,11 +190,19 @@ class OnlineEval:
                 actions_all_list.append(actions.cpu().numpy())
             obs, _, rews, dones, infos = env.step(actions.detach())
 
+            # Accumulate rewards per environment (matching OnPolicyRunner approach)
+            cur_reward_sum += rews.squeeze()
+
             episode_lengths = torch.clamp(episode_lengths + 1, max=max_episode_length)
             done_indices = torch.where(dones.squeeze() == 1)[0]
-            for env_idx in done_indices:
-                env_idx = env_idx.item()
-                episode_lengths[env_idx] = 0
+            
+            # When episodes end, store total episode rewards and reset
+            if len(done_indices) > 0:
+                rewbuffer.extend(cur_reward_sum[done_indices].cpu().numpy().tolist())
+                cur_reward_sum[done_indices] = 0
+                for env_idx in done_indices:
+                    env_idx = env_idx.item()
+                    episode_lengths[env_idx] = 0
 
             
             if i < stop_state_log:
@@ -202,8 +226,9 @@ class OnlineEval:
                 #logger.plot_states(model_dir)
 
             if 0 < i < stop_rew_log:
-                #if infos["episode"]:
+                # Collect episode info for individual reward terms (matching OnPolicyRunner approach)
                 if "episode" in infos and infos["episode"]:
+                    ep_infos.append(infos["episode"])
                     num_episodes = torch.sum(env.reset_buf).item()
                     if num_episodes > 0:
                         logger.log_rewards(infos["episode"], num_episodes)
@@ -239,7 +264,7 @@ class OnlineEval:
             else:
                 actions_mean_per_dim_dict = {}
             
-            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(rewbuffer, ep_infos)
             
             # Return observation stats along with other eval results
             obs_stats = {
@@ -253,7 +278,7 @@ class OnlineEval:
             
             return eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats
         else:
-            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(logger)
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(rewbuffer, ep_infos)
             return eval_score, n_eps_evaluated, scaled_rew_terms_avg, {}
 
         
