@@ -80,7 +80,7 @@ class OnlineEval:
             self.state_mean, self.state_std = compute_mean_std(dataset["observations"], eps=1e-3)
 
     
-    def calculate_total_reward(self, rewbuffer, ep_infos):
+    def calculate_total_reward(self, rewbuffer, ep_infos, lenbuffer):
         """
         Calculate mean reward from episode total rewards buffer and individual reward terms.
         Matches the approach in OnPolicyRunner where we accumulate per-step rewards
@@ -90,8 +90,10 @@ class OnlineEval:
         """
         if len(rewbuffer) > 0:
             avg_total_ep_rew = np.mean(rewbuffer)
+            avg_episode_length = np.mean(lenbuffer) if len(lenbuffer) > 0 else 0.0
         else:
             avg_total_ep_rew = 0.0
+            avg_episode_length = 0.0
         
         # Compute mean of individual reward terms (matching OnPolicyRunner approach)
         scaled_rew_terms_avg = {}
@@ -113,7 +115,7 @@ class OnlineEval:
                     # OnPolicyRunner logs these normalized values as-is
                     scaled_rew_terms_avg[key] = np.mean(values)
         
-        return avg_total_ep_rew, len(rewbuffer), scaled_rew_terms_avg
+        return avg_total_ep_rew, len(rewbuffer), scaled_rew_terms_avg, avg_episode_length
    
     @torch.no_grad()
     def eval_actor_isaac(
@@ -157,6 +159,7 @@ class OnlineEval:
         cur_reward_sum = torch.zeros(num_envs, dtype=torch.float, device=device)
         rewbuffer = []  # Store total episode rewards
         ep_infos = []  # Store episode info dicts for individual reward terms
+        lenbuffer = []  # Store episode lengths (matching OnPolicyRunner)
 
         # Accumulate observation stats for logging
         obs_stats_list = []
@@ -200,6 +203,8 @@ class OnlineEval:
             # When episodes end, store total episode rewards and reset
             if len(done_indices) > 0:
                 rewbuffer.extend(cur_reward_sum[done_indices].cpu().numpy().tolist())
+                # Store episode lengths for finished episodes
+                lenbuffer.extend(episode_lengths[done_indices].cpu().numpy().tolist())
                 cur_reward_sum[done_indices] = 0
                 for env_idx in done_indices:
                     env_idx = env_idx.item()
@@ -265,7 +270,7 @@ class OnlineEval:
             else:
                 actions_mean_per_dim_dict = {}
             
-            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(rewbuffer, ep_infos)
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length = self.calculate_total_reward(rewbuffer, ep_infos, lenbuffer)
             
             # Return observation stats along with other eval results
             obs_stats = {
@@ -277,10 +282,10 @@ class OnlineEval:
                 **actions_mean_per_dim_dict,  # Add per-dimension action means
             }
             
-            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats
+            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length, obs_stats
         else:
-            eval_score, n_eps_evaluated, scaled_rew_terms_avg = self.calculate_total_reward(rewbuffer, ep_infos)
-            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, {}
+            eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length = self.calculate_total_reward(rewbuffer, ep_infos, lenbuffer)
+            return eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length, {}
 
         
 

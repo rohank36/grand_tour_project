@@ -1195,11 +1195,11 @@ def train(config: TrainConfig):
         
         if (t + 1) % config.eval_freq == 0:
             result = online_eval.eval_actor_isaac(actor=actor, device=config.device)
-            if len(result) == 4:
-                eval_score, n_eps_evaluated, scaled_rew_terms_avg, obs_stats = result
+            if len(result) == 5:
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length, obs_stats = result
             else:
                 # Backward compatibility
-                eval_score, n_eps_evaluated, scaled_rew_terms_avg = result
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length = result
                 obs_stats = {}
             
             print("---------------------------------------")
@@ -1218,6 +1218,7 @@ def train(config: TrainConfig):
                 "isaac_reward": eval_score,
                 "num_eval_episodes": n_eps_evaluated,
                 **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
+                "isaac_avg_episode_length": avg_episode_length,
             }
             # Add observation stats if available - use clear prefix to group Isaac Gym eval metrics
             if obs_stats:
