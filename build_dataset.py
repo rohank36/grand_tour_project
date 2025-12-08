@@ -283,12 +283,13 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     torque_limits = 80.0  # N⋅m, from ANYmal D URDF effort limits
     torques = np.clip(est["joint_efforts"], -torque_limits, torque_limits)
     
-    rews = compute_rewards_offline(
+    rews, episode_sums_total = compute_rewards_offline(
         base_ang_vel,
         base_lin_vel,
         prev_actions,
         actions,
         joint_vel,
+        joint_pos,  # joint_positions from state estimator
         est["LF_FOOT_contact"],
         est["LH_FOOT_contact"],
         est["RF_FOOT_contact"],
@@ -296,7 +297,9 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         cmd_lin_body,
         cmd_ang_body,
         torques,  # Use clipped torques instead of est["joint_efforts"]
-        len(obs)
+        odom["pose_pos"],  # pose_pos for base height reward
+        len(obs),
+        return_per_term=True
     )
 
     # Shift for next_observations 
@@ -321,7 +324,7 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
         terminals=terminals,
     )
 
-    return dataset
+    return dataset, episode_sums_total
 
 def save_offline_dataset_hdf5(dataset, filename="offline_dataset.hdf5"):
     with h5py.File(filename, "w") as f:
@@ -337,7 +340,7 @@ def save_offline_dataset_hdf5(dataset, filename="offline_dataset.hdf5"):
     print(f"Saved dataset to {filename}\n")
 
 print("\nBuilding Offline Dataset...")
-dataset = build_offline_dataset(aligned)
+dataset, episode_sums_total = build_offline_dataset(aligned)
 save_offline_dataset_hdf5(dataset)
 
 def episode_returns(rewards, terminals):
@@ -374,3 +377,28 @@ with open(output_file, "a") as f:
     
     f.write(total_episodes)
     f.write(median_return)
+    
+    # Compute and print per-term average episode rewards
+    T_total = len(dataset["rewards"])
+    num_episodes = len(ep_ret)
+    avg_episode_length = T_total / num_episodes if num_episodes > 0 else 0
+    
+    print("\n" + "="*60)
+    print("Per-Term Average Episode Rewards:")
+    print("="*60)
+    f.write("\n" + "="*60 + "\n")
+    f.write("Per-Term Average Episode Rewards:\n")
+    f.write("="*60 + "\n")
+    
+    for term_name, term_total in sorted(episode_sums_total.items()):
+        # Adjust for the fact that we computed on full length but dataset is shifted
+        term_total_adjusted = term_total  # Already computed on full length
+        avg_per_episode = term_total_adjusted / num_episodes if num_episodes > 0 else 0
+        avg_per_step = term_total_adjusted / T_total if T_total > 0 else 0
+        
+        info = f"{term_name:25s}: {avg_per_episode:10.4f} per episode, {avg_per_step:10.6f} per step\n"
+        print(info.strip())
+        f.write(info)
+    
+    print("="*60)
+    f.write("="*60 + "\n")
