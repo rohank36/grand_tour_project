@@ -38,25 +38,25 @@ class TrainConfig:
     eval_freq: int = int(1e4) 
     n_episodes: int = 10  # How many episodes run during evaluation
     #max_timesteps: int = int(1e6)  # Max time steps to run environment
-    max_timesteps: int = int(100000) # FOR TESTING
+    max_timesteps: int = int(150000) # FOR TESTING (BC for full run)
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
     batch_size: int = 256  # Batch size for all networks
     discount: float = 0.99  # Discount factor
-    alpha_multiplier: float = 0.1  # Multiplier for alpha in loss
-    use_automatic_entropy_tuning: bool = False  # Tune entropy
+    alpha_multiplier: float = 0.0  # Multiplier for alpha in loss (0 = no entropy term during BC)
+    use_automatic_entropy_tuning: bool = False  # Tune entropy (off for pure BC)
     backup_entropy: bool = False  # Use backup entropy
-    policy_lr: float = 3e-5  # Policy learning rate
-    qf_lr: float = 1e-4   # Critics learning rate
-    soft_target_update_rate: float = 1e-3   # Target network update rate
+    policy_lr: float = 3e-4 # Policy learning rate (higher for faster supervised BC)
+    qf_lr: float = 0.0  # Critics learning rate (small; critics are irrelevant for BC)
+    soft_target_update_rate: float = 5e-3  # Target network update rate
     target_update_period: int = 1  # Frequency of target nets updates
-    cql_n_actions: int = 10  # Number of sampled actions
+    cql_n_actions: int = 0  # Number of sampled actions (0 = no CQL sampling for BC-only run)
     cql_importance_sample: bool = True  # Use importance sampling
-    cql_lagrange: bool = False  # Use Lagrange version of CQL
-    cql_target_action_gap: float = 1.0 # Action gap
+    cql_lagrange: bool = False  # Use Lagrange version of CQL (off for BC)
+    cql_target_action_gap: float = -1.0 # Action gap
     cql_temp: float = 1.0  # CQL temperature
-    cql_alpha: float = 1.0  # Minimal Q weight
+    cql_alpha: float = 0  # Minimal Q weight (0 = disable CQL)
     cql_max_target_backup: bool = False  # Use max target backup
     cql_clip_diff_min: float = -100  # Q-function lower loss clipping
     cql_clip_diff_max: float = 100  # Q-function upper loss clipping
@@ -64,11 +64,12 @@ class TrainConfig:
     normalize: bool = False  # Normalize states
     normalize_reward: bool = False  # Normalize reward
     q_n_hidden_layers: int = 3  # Number of hidden layers in Q networks
-    bc_steps: int = int(5e4)  # Number of BC steps at start
+    bc_steps: int = int(150000)  # Number of BC steps at start (full run = BC-only)
     reward_scale: float = 1.0  # Reward scale for normalization
     reward_bias: float = 0.0  # Reward bias for normalization
     policy_log_std_multiplier: float = 1.0  # Stochastic policy std multiplier
     normalize_online_eval_obs: bool = False # Normalize online eval obs
+    dataset_filepath: str = "offline_dataset_pp.hdf5"
     
     project: str = "grand_tour"  # wandb project name
     group: str = "CQL"  # wandb group name
@@ -927,7 +928,7 @@ def train(config: TrainConfig):
     env = None
 
     #dataset = d4rl.qlearning_dataset(env)
-    dataset_path = "offline_dataset_pp.hdf5"
+    dataset_path = config.dataset_filepath
     dataset = load_hdf5_dataset(dataset_path)
 
     state_dim = dataset["observations"].shape[1]
