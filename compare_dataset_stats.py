@@ -199,6 +199,38 @@ def plot_obs(dir_path, ds1, ds2, n1="Isaac Gym", n2="Grand Tour", max_points=100
         plt.close()
         print(f"Plot {i} done.")
 
+
+def plot_rews(dir_path, ds1, ds2, n1="Isaac Gym", n2="Grand Tour", max_points=100_000):
+   
+    os.makedirs(dir_path, exist_ok=True)
+
+    o1 = ds1["rewards"]   # h5py dataset, not loaded yet
+    o2 = ds2["rewards"]
+
+    N = min(len(o1), len(o2), max_points)
+
+    # x-axis: just 0..N-1
+    x = np.arange(N)
+
+   
+    # read only the needed slice from disk (fast and memory-light)
+    y1 = o1[:N]
+    y2 = o2[:N]
+
+    plt.figure()
+    plt.plot(x, y1, label=n1)
+    plt.plot(x, y2, label=n2)
+    plt.xlabel("timestep (index)")
+    plt.ylabel(f"reward")
+    plt.title(f"Reward comparison")
+    plt.legend()
+    plt.tight_layout()
+
+    fname = os.path.join(dir_path, f"reward_comparison.png")
+    plt.savefig(fname, dpi=150)
+    plt.close()
+    print(f"Plot done.")
+
 # === Main usage ===
 
 dataset_isaac_gym = load_dataset_lazy("expert_dataset.hdf5")
@@ -227,6 +259,9 @@ acts_plots_dir = "act_plots"
 
 obs_plots_dir = "obs_plots"
 #plot_obs(obs_plots_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
+
+rews_plot_dir = "rew_plots"
+plot_rews(rews_plot_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
 
 
 dataset_isaac_gym.close()
