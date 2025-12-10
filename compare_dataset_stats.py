@@ -1,6 +1,8 @@
 import numpy as np
-import h5py  
-import matplotlib as plt
+import h5py
+import os
+import matplotlib.pyplot as plt  # <-- use pyplot
+
 
 def load_dataset_lazy(filename):
     f = h5py.File(filename, "r")   # keep file open
@@ -60,7 +62,8 @@ def print_obs_stats(dataset1, dataset2, name1="Isaac Gym", name2="Grand Tour"):
     print("="*120)
     print("Observation Statistics Comparison (per dimension):")
     print("="*120)
-    print(f"{'Dim':<6} {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15} | {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15}")
+    print(f"{'Dim':<6} {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15} | "
+          f"{'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15}")
     print(f"{'':6} {name1:<60} | {name2:<60}")
     print("-"*120)
 
@@ -92,7 +95,8 @@ def print_act_stats(dataset1, dataset2, name1="Isaac Gym", name2="Grand Tour"):
     print("="*120)
     print("Action Statistics Comparison (per dimension):")
     print("="*120)
-    print(f"{'Dim':<6} {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15} | {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15}")
+    print(f"{'Dim':<6} {'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15} | "
+          f"{'Mean':<15} {'Std':<15} {'Min':<15} {'Max':<15}")
     print(f"{'':6} {name1:<60} | {name2:<60}")
     print("-"*120)
 
@@ -113,16 +117,87 @@ def print_act_stats(dataset1, dataset2, name1="Isaac Gym", name2="Grand Tour"):
     print("="*120)
 
 
-def plot_acts(dir_path,ds1,ds2,n1="Isaac Gym",n2="Grand Tour"):
-    a1 = ds1["actions"]
+def plot_acts(dir_path, ds1, ds2, n1="Isaac Gym", n2="Grand Tour", max_points=100_000):
+    """
+    - Take up to `max_points` first rows from each dataset.
+    - For each action dimension i, make a line plot:
+        y1 = ds1.actions[:N, i]
+        y2 = ds2.actions[:N, i]
+    - Save each plot under dir_path as 'actions_dim_i.png'.
+    """
+    os.makedirs(dir_path, exist_ok=True)
+
+    a1 = ds1["actions"]   # h5py dataset, not loaded yet
     a2 = ds2["actions"]
 
+    N1, D1 = a1.shape
+    N2, D2 = a2.shape
+    assert D1 == D2, "Action dimensions must match between datasets"
 
-    # randomly sample 100,000 indices in range [0,852249]
-    # i want 12 charts, where the plot contains the line charts per dataset of dimension i
-    # of the randomly sampled indices
-    # save each plot to the dir path 
+    act_dim = D1
+    N = min(N1, N2, max_points)
 
+    # x-axis: just 0..N-1
+    x = np.arange(N)
+
+    print(f"Plotting first {N} samples for {act_dim} action dimensions...")
+
+    for i in range(act_dim):
+        # read only the needed slice from disk (fast and memory-light)
+        y1 = a1[:N, i]
+        y2 = a2[:N, i]
+
+        plt.figure()
+        plt.plot(x, y1, label=n1)
+        plt.plot(x, y2, label=n2)
+        plt.xlabel("timestep (index)")
+        plt.ylabel(f"action dim {i}")
+        plt.title(f"Actions comparison - dim {i}")
+        plt.legend()
+        plt.tight_layout()
+
+        fname = os.path.join(dir_path, f"actions_dim_{i}.png")
+        plt.savefig(fname, dpi=150)
+        plt.close()
+        print(f"Plot {i} done.")
+
+def plot_obs(dir_path, ds1, ds2, n1="Isaac Gym", n2="Grand Tour", max_points=100_000):
+   
+    os.makedirs(dir_path, exist_ok=True)
+
+    o1 = ds1["observations"]   # h5py dataset, not loaded yet
+    o2 = ds2["observations"]
+
+    N1, D1 = o1.shape
+    N2, D2 = o2.shape
+    assert D1 == D2, "Action dimensions must match between datasets"
+
+    obs_dim = D1
+    N = min(N1, N2, max_points)
+
+    # x-axis: just 0..N-1
+    x = np.arange(N)
+
+    print(f"Plotting first {N} samples for {obs_dim} obs dimensions...")
+
+    for i in range(obs_dim):
+        # read only the needed slice from disk (fast and memory-light)
+        y1 = o1[:N, i]
+        y2 = o2[:N, i]
+
+        plt.figure()
+        plt.plot(x, y1, label=n1)
+        plt.plot(x, y2, label=n2)
+        plt.xlabel("timestep (index)")
+        plt.ylabel(f"obs dim {i}")
+        plt.title(f"Obs comparison - dim {i}")
+        plt.legend()
+        plt.tight_layout()
+
+        fname = os.path.join(dir_path, f"obs_dim_{i}.png")
+        plt.savefig(fname, dpi=150)
+        plt.close()
+        print(f"Plot {i} done.")
 
 # === Main usage ===
 
@@ -143,10 +218,16 @@ print(total_episodes.strip())
 print(median_return.strip())
 """
 
-print_obs_stats(dataset_isaac_gym, dataset_grand_tour)
-print_act_stats(dataset_isaac_gym, dataset_grand_tour)
+#print_obs_stats(dataset_isaac_gym, dataset_grand_tour)
+#print_act_stats(dataset_isaac_gym, dataset_grand_tour)
 
-# code to create dir to save act plots 
+# create dir and plot actions
+acts_plots_dir = "act_plots"
+#plot_acts(acts_plots_dir, dataset_isaac_gym, dataset_grand_tour, n1="Isaac Gym", n2="Grand Tour")
+
+obs_plots_dir = "obs_plots"
+#plot_obs(obs_plots_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
+
 
 dataset_isaac_gym.close()
 dataset_grand_tour.close()
