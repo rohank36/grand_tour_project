@@ -8,8 +8,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
+from utils import load_hdf5_dataset
+from eval_isaac_v2 import OnlineEval
+
 #import d4rl
 #import gym
+from tqdm import tqdm
 import numpy as np
 import pyrallis
 import torch
@@ -49,7 +53,7 @@ class TrainConfig:
     # whether to use deterministic actor
     iql_deterministic: bool = False
     # total gradient updates during training
-    max_timesteps: int = int(1e6)
+    max_timesteps: int = int(5e5)
     # maximum size of the replay buffer
     buffer_size: int = 2_000_000
     # training batch size
@@ -67,7 +71,7 @@ class TrainConfig:
     #  where to use dropout for policy network, optional
     actor_dropout: Optional[float] = None
     # evaluation frequency, will evaluate every eval_freq training steps
-    eval_freq: int = int(5e3)
+    eval_freq: int = int(1e4)
     # number of episodes to run during evaluation
     n_episodes: int = 10
     # path for checkpoints saving, optional
@@ -78,6 +82,9 @@ class TrainConfig:
     seed: int = 0
     # training device
     device: str = "cuda"
+    dataset_filepath: str = "expert_dataset.hdf5"
+    eval_seed: int = 27
+    normalize_online_eval_obs: bool = False
 
     def __post_init__(self):
         self.name = f"{self.name}-{str(uuid.uuid4())[:8]}"
@@ -99,7 +106,7 @@ def compute_mean_std(states: np.ndarray, eps: float) -> Tuple[np.ndarray, np.nda
 def normalize_states(states: np.ndarray, mean: np.ndarray, std: np.ndarray):
     return (states - mean) / std
 
-
+"""
 def wrap_env(
     env: gym.Env,
     state_mean: Union[np.ndarray, float] = 0.0,
@@ -120,6 +127,7 @@ def wrap_env(
     if reward_scale != 1.0:
         env = gym.wrappers.TransformReward(env, scale_reward)
     return env
+"""
 
 
 class ReplayBuffer:
@@ -185,7 +193,7 @@ class ReplayBuffer:
 
 
 def set_seed(
-    seed: int, env: Optional[gym.Env] = None, deterministic_torch: bool = False
+    seed: int, env = None, deterministic_torch: bool = False
 ):
     if env is not None:
         env.seed(seed)
@@ -205,9 +213,9 @@ def wandb_init(config: dict) -> None:
         name=config["name"],
         id=str(uuid.uuid4()),
     )
-    wandb.run.save()
+    #wandb.run.save()
 
-
+"""
 @torch.no_grad()
 def eval_actor(
     env: gym.Env, actor: nn.Module, device: str, n_episodes: int, seed: int
@@ -226,6 +234,7 @@ def eval_actor(
 
     actor.train()
     return np.asarray(episode_rewards)
+"""
 
 
 def return_reward_range(dataset, max_episode_steps):
@@ -331,7 +340,26 @@ class GaussianPolicy(nn.Module):
         action = dist.mean if not self.training else dist.sample()
         action = torch.clamp(self.max_action * action, -self.max_action, self.max_action)
         return action.cpu().data.numpy().flatten()
+    
+    @torch.no_grad()
+    def act_inference(self, obs: torch.Tensor) -> torch.Tensor:
+        """
+        obs: (batch_size, state_dim) tensor on the same device as the policy.
+        returns: (batch_size, act_dim) tensor, in the same action range used in training
+        """
+        dist = self(obs)
+        # Match the behaviour of `act`: sample during training, mean during eval
+        if self.training:
+            action = dist.sample()
+        else:
+            action = dist.mean
 
+        action = torch.clamp(
+            self.max_action * action, 
+            -self.max_action, 
+            self.max_action
+        )
+        return action
 
 class DeterministicPolicy(nn.Module):
     def __init__(
@@ -539,12 +567,17 @@ class ImplicitQLearning:
 
 @pyrallis.wrap()
 def train(config: TrainConfig):
-    env = gym.make(config.env)
+    #env = gym.make(config.env)
+    env = None
+    #state_dim = env.observation_space.shape[0]
+    #action_dim = env.action_space.shape[0]
 
-    state_dim = env.observation_space.shape[0]
-    action_dim = env.action_space.shape[0]
+    #dataset = d4rl.qlearning_dataset(env)
+    dataset = load_hdf5_dataset(config.dataset_filepath)
 
-    dataset = d4rl.qlearning_dataset(env)
+    state_dim = dataset["observations"].shape[1]
+    action_dim = dataset["actions"].shape[1]
+    print(f"CQL state dim: {state_dim} action dim: {action_dim}")
 
     if config.normalize_reward:
         modify_reward(dataset, config.env)
@@ -560,7 +593,7 @@ def train(config: TrainConfig):
     dataset["next_observations"] = normalize_states(
         dataset["next_observations"], state_mean, state_std
     )
-    env = wrap_env(env, state_mean=state_mean, state_std=state_std)
+    #env = wrap_env(env, state_mean=state_mean, state_std=state_std)
     replay_buffer = ReplayBuffer(
         state_dim,
         action_dim,
@@ -569,7 +602,8 @@ def train(config: TrainConfig):
     )
     replay_buffer.load_d4rl_dataset(dataset)
 
-    max_action = float(env.action_space.high[0])
+    #max_action = float(env.action_space.high[0])
+    max_action = float(np.max(np.abs(dataset["actions"])))
 
     if config.checkpoints_path is not None:
         print(f"Checkpoints path: {config.checkpoints_path}")
@@ -614,7 +648,7 @@ def train(config: TrainConfig):
     }
 
     print("---------------------------------------")
-    print(f"Training IQL, Env: {config.env}, Seed: {seed}")
+    print(f"Training IQL, Seed: {seed}")
     print("---------------------------------------")
 
     # Initialize actor
@@ -626,16 +660,17 @@ def train(config: TrainConfig):
         actor = trainer.actor
 
     wandb_init(asdict(config))
-
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs)
     evaluations = []
-    for t in range(int(config.max_timesteps)):
+    #for t in range(int(config.max_timesteps)):
+    for t in tqdm(range(int(config.max_timesteps)),desc="Training IQL"):
         batch = replay_buffer.sample(config.batch_size)
         batch = [b.to(config.device) for b in batch]
         log_dict = trainer.train(batch)
         wandb.log(log_dict, step=trainer.total_it)
         # Evaluate episode
         if (t + 1) % config.eval_freq == 0:
-            print(f"Time steps: {t + 1}")
+            """
             eval_scores = eval_actor(
                 env,
                 actor,
@@ -645,11 +680,19 @@ def train(config: TrainConfig):
             )
             eval_score = eval_scores.mean()
             normalized_eval_score = env.get_normalized_score(eval_score) * 100.0
-            evaluations.append(normalized_eval_score)
+            """
+            result = online_eval.eval_actor_isaac(actor=actor, device=config.device)
+            if len(result) == 5:
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length, obs_stats = result
+            else:
+                # Backward compatibility
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length = result
+                obs_stats = {}
+            evaluations.append(eval_score)
             print("---------------------------------------")
             print(
-                f"Evaluation over {config.n_episodes} episodes: "
-                f"{eval_score:.3f} , D4RL score: {normalized_eval_score:.3f}"
+                f"Evaluation over {n_eps_evaluated} episodes: "
+                f"{eval_score:.3f}"
             )
             print("---------------------------------------")
             if config.checkpoints_path is not None:
@@ -657,10 +700,20 @@ def train(config: TrainConfig):
                     trainer.state_dict(),
                     os.path.join(config.checkpoints_path, f"checkpoint_{t}.pt"),
                 )
+            log_dict_eval = {
+                "isaac_reward": eval_score,
+                "num_eval_episodes": n_eps_evaluated,
+                **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
+                "isaac_avg_episode_length": avg_episode_length,
+            }
+            # Add observation stats if available - use clear prefix to group Isaac Gym eval metrics
+            if obs_stats:
+                log_dict_eval.update({f"isaac_eval/{k}": v for k, v in obs_stats.items()})
+            
             wandb.log(
-                {"d4rl_normalized_score": normalized_eval_score}, step=trainer.total_it
+                log_dict_eval,
+                step=trainer.total_it,
             )
-
 
 if __name__ == "__main__":
     train()
