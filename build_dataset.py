@@ -221,7 +221,12 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])  # (T, 3) - now in body frame
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])  # (T, 3) - now in body frame
     projected_gravity = quat_rotate_inverse(base_quat, gravity_vec)  # (T, 3)
-    joint_pos = est["joint_positions"]       # (T, 12) # need to substract default_dos_pos here?
+    #joint_pos = est["joint_positions"]       # (T, 12) 
+
+    #Testing
+    act_keys_pos = [f"{i:02d}_state_joint_position" for i in range(12)]
+    joint_pos = np.stack([act[k] for k in act_keys_pos], axis=-1)  # (T, 12)
+
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
     cmd_ang = cmd["angular"]                 # (T, 3)
@@ -253,13 +258,18 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     # re order concatenation to match Isaac Gym standard
     # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
     obs = np.concatenate([
-        scale_lin_vel(base_lin_vel),       # 3
-        scale_ang_vel(base_ang_vel),       # 3
+        #scale_lin_vel(base_lin_vel),       # 3
+        base_lin_vel,
+        #scale_ang_vel(base_ang_vel),       # 3
+        base_ang_vel,
         projected_gravity,  # 3
-        scale_commands(commands_xy_yaw),    # 3  
+        #scale_commands(commands_xy_yaw),    # 3  
+        commands_xy_yaw,
         scale_joint_pos(joint_pos),          # 12
-        scale_joint_vel(joint_vel),          # 12
-        prev_actions,       # 12
+        #joint_pos,
+        #scale_joint_vel(joint_vel),          # 12
+        joint_vel,
+        #prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
     """
@@ -276,8 +286,8 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     ), dim=-1)
     """
     # Add noise to observations 
-    obs = add_observation_noise(obs)
-    obs = clip_observations(obs)
+    #obs = add_observation_noise(obs)
+    #obs = clip_observations(obs)
     
     # Clip torques to match Isaac Gym's torque limits (80.0 N⋅m for all joints from URDF)
     torque_limits = 80.0  # N⋅m, from ANYmal D URDF effort limits
