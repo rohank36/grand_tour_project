@@ -3,5 +3,7 @@
 /missions
 /__pycache__
 /offline_dataset*.hdf5
+/expert_dataset*.hdf5
 /*test*
 /wandb
+/notes.txt
