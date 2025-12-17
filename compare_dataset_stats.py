@@ -26,7 +26,10 @@ def episode_returns(rewards, terminals):
 
 
 def get_obs_stats(dataset):
-    obs = dataset["observations"]
+    obs = np.array(dataset["observations"])   # or dataset["observations"][:]
+
+    # Scale columns 24 onward
+    #obs[:,:] = obs[:, 24:] * 0.05
 
     stats = {
         'mean': np.mean(obs, axis=0),
@@ -250,18 +253,18 @@ print(total_episodes.strip())
 print(median_return.strip())
 """
 
-#print_obs_stats(dataset_isaac_gym, dataset_grand_tour)
-#print_act_stats(dataset_isaac_gym, dataset_grand_tour)
+print_obs_stats(dataset_isaac_gym, dataset_grand_tour)
+print_act_stats(dataset_isaac_gym, dataset_grand_tour)
 
 # create dir and plot actions
 acts_plots_dir = "act_plots"
 #plot_acts(acts_plots_dir, dataset_isaac_gym, dataset_grand_tour, n1="Isaac Gym", n2="Grand Tour")
 
-obs_plots_dir = "obs_plots"
+obs_plots_dir = "obs_plots2"
 #plot_obs(obs_plots_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
 
 rews_plot_dir = "rew_plots"
-plot_rews(rews_plot_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
+#plot_rews(rews_plot_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
 
 
 dataset_isaac_gym.close()
