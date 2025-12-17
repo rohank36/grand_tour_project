@@ -332,18 +332,27 @@ anymal_command_twist:
 -->    timestamp_50hz (852250,) <class 'numpy.ndarray'>
 ------------------------------
 
-Building Offline Dataset...
-Saving observations: (852249, 48) float64
-Saving actions: (852249, 12) float64
-Saving next_observations: (852249, 48) float64
-Saving rewards: (852249,) float64
-Saving terminals: (852249,) bool
-Saved dataset to offline_dataset.hdf5
 
-observations: <class 'numpy.ndarray'> (852249, 48)
+Building Offline Dataset...
+
+Offline Dataset:
+observations: <class 'numpy.ndarray'> (852249, 36)
 actions: <class 'numpy.ndarray'> (852249, 12)
-next_observations: <class 'numpy.ndarray'> (852249, 48)
+next_observations: <class 'numpy.ndarray'> (852249, 36)
 rewards: <class 'numpy.ndarray'> (852249,)
 terminals: <class 'numpy.ndarray'> (852249,)
 Total episodes: 853
-Median Episode Return: 25.98146322716498
+Median Episode Return: 25.80169853197373
+
+============================================================
+Per-Term Average Episode Rewards:
+============================================================
+action_rate              :    -0.0829 per episode,  -0.000083 per step
+ang_vel_xy               :    -0.0227 per episode,  -0.000023 per step
+dof_acc                  :    -0.1404 per episode,  -0.000141 per step
+feet_air_time            :     0.0000 per episode,   0.000000 per step
+lin_vel_z                :    -0.2432 per episode,  -0.000243 per step
+torques                  :    -1.8320 per episode,  -0.001834 per step
+tracking_ang_vel         :     9.6135 per episode,   0.009622 per step
+tracking_lin_vel         :    18.4649 per episode,   0.018481 per step
+============================================================

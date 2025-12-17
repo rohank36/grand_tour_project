@@ -54,7 +54,7 @@ class TrainConfig:
     # training batch size
     batch_size: int = 256
     # total number of training epochs
-    num_epochs: int = 3000
+    num_epochs: int = 1500
     # number of gradient updates during one epoch
     num_updates_on_epoch: int = 1000
     # whether to normalize reward (like in IQL)
@@ -62,20 +62,21 @@ class TrainConfig:
     # number of episodes to run during evaluation
     eval_episodes: int = 10
     # evaluation frequency, will evaluate eval_every training steps
-    eval_every: int = 5
+    eval_every: int = 100
     # path for checkpoints saving, optional
     checkpoints_path: Optional[str] = None
     # configure PyTorch to use deterministic algorithms instead
     # of nondeterministic ones
     deterministic_torch: bool = False
     # training random seed
-    train_seed: int = 10
+    train_seed: int = 0
     # evaluation random seed
-    eval_seed: int = 42
+    eval_seed: int = 27
     # frequency of metrics logging to the wandb
     log_every: int = 100
     # training device
     device: str = "cuda"
+    dataset_filepath: str = "expert_dataset.hdf5"
 
     def __post_init__(self):
         self.name = f"{self.name}-{str(uuid.uuid4())[:8]}"
@@ -588,7 +589,7 @@ def train(config: TrainConfig):
     set_seed(config.train_seed, deterministic_torch=config.deterministic_torch)
     wandb_init(asdict(config))
 
-    dataset = load_hdf5_dataset("offline_dataset_pp.hdf5")
+    dataset = load_hdf5_dataset(config.dataset_filepath)
 
     # data, evaluation, env setup
     #eval_env = wrap_env(gym.make(config.env_name))
@@ -665,16 +666,13 @@ def train(config: TrainConfig):
                 device=config.device,
             )
             """
-            eval_score,n_eps_evaluated,scaled_rew_terms_avg = online_eval.eval_actor_isaac(
-                                            actor=actor,
-                                            device=config.device,
-                                        )
-            eval_log = {
-                "eval/score": eval_score,
-                "eval/n_eps": n_eps_evaluated,
-                **{f"eval/reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
-                "epoch": epoch,
-            }
+            result = online_eval.eval_actor_isaac(actor=actor, device=config.device)
+            if len(result) == 5:
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length, obs_stats = result
+            else:
+                # Backward compatibility
+                eval_score, n_eps_evaluated, scaled_rew_terms_avg, avg_episode_length = result
+                obs_stats = {}
             """
             if hasattr(eval_env, "get_normalized_score"):
                 normalized_score = eval_env.get_normalized_score(eval_returns) * 100.0
@@ -682,7 +680,19 @@ def train(config: TrainConfig):
                 eval_log["eval/normalized_score_std"] = np.std(normalized_score)
             """
 
-            wandb.log(eval_log)
+            log_dict_eval = {
+                "isaac_reward": eval_score,
+                "num_eval_episodes": n_eps_evaluated,
+                **{f"reward_terms/{k}": v for k, v in scaled_rew_terms_avg.items()},
+                "isaac_avg_episode_length": avg_episode_length,
+            }
+            # Add observation stats if available - use clear prefix to group Isaac Gym eval metrics
+            if obs_stats:
+                log_dict_eval.update({f"isaac_eval/{k}": v for k, v in obs_stats.items()})
+
+            wandb.log(
+                log_dict_eval,
+                )
 
             if config.checkpoints_path is not None:
                 torch.save(
