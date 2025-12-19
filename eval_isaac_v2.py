@@ -14,10 +14,11 @@ from tqdm import tqdm
 
 from reward import rewards
 from utils import compute_mean_std, load_hdf5_dataset
+from grandtour_compatibility import unscale_observations
 
 class OnlineEval:
 
-    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=True):
+    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=False):
         args = get_args()
         args.seed = seed
         args.task = task_name
@@ -179,6 +180,9 @@ class OnlineEval:
         # max_episode_length = 1001
         for i in range(num_repetitions * int(max_episode_length)+2):
         #for i in tqdm(range(num_repetitions * int(max_episode_length)+2),desc="Online IG Eval"):
+
+            obs = unscale_observations(obs, device=device)
+
             # Normalize observations before feeding to actor
             if self.normalize:
                 obs_normalized = (obs - state_mean_torch) / state_std_torch
