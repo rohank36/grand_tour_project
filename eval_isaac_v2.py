@@ -141,7 +141,7 @@ class OnlineEval:
         env_cfg = self.env_cfg
 
         obs = env.get_observations()
-        obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+        #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
         
         logger = Logger(env.dt) # note env.dt = 0.0199999 
         robot_index = 0  # which robot is used for logging
@@ -201,7 +201,7 @@ class OnlineEval:
             with torch.no_grad():
                 actions_all_list.append(actions.cpu().numpy())
             obs, _, rews, dones, infos = env.step(actions.detach())
-            obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+            #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
 
             # Accumulate rewards per environment (matching OnPolicyRunner approach)
             cur_reward_sum += rews.squeeze()
