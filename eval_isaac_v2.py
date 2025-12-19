@@ -15,6 +15,7 @@ from tqdm import tqdm
 from reward import rewards
 from utils import compute_mean_std, load_hdf5_dataset
 from grandtour_compatibility import unscale_observations
+from isaac_compatibility import make_actions_compatible
 
 class OnlineEval:
 
@@ -201,10 +202,18 @@ class OnlineEval:
                 obs_all_list.append(obs.cpu().numpy())
             
             actions = actor.act_inference(obs_normalized.detach())
-            # Store actions for per-dimension analysis
+            
+            # Convert actions from absolute positions (GrandTour format) to offsets (Isaac Gym format)
+            # Policy outputs absolute positions, but Isaac Gym expects normalized offsets
+            actions_np = actions.detach().cpu().numpy()
+            actions_isaac = make_actions_compatible(actions_np)
+            actions_isaac = torch.tensor(actions_isaac, device=actions.device, dtype=actions.dtype)
+            
+            # Store actions for per-dimension analysis (from policy output, before conversion)
             with torch.no_grad():
-                actions_all_list.append(actions.cpu().numpy())
-            obs, _, rews, dones, infos = env.step(actions.detach())
+                actions_all_list.append(actions_np)
+            
+            obs, _, rews, dones, infos = env.step(actions_isaac.detach())
             #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
 
             # Accumulate rewards per environment (matching OnPolicyRunner approach)
