@@ -241,7 +241,7 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
 
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
-    actions = make_actions_compatible(actions)
+    #actions = make_actions_compatible(actions)
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
