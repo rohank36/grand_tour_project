@@ -9,13 +9,14 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import h5py
 import numpy as np
 import pyrallis
-import torch
-import torch.nn as nn
 import wandb
 from tqdm import tqdm
 from eval_isaac_v2 import OnlineEval
 from utils import compute_mean_std, normalize_states, load_hdf5_dataset
 import time
+
+import torch
+import torch.nn as nn
 
 TensorBatch = List[torch.Tensor]
 
@@ -27,7 +28,7 @@ class TrainConfig:
     eval_seed: int = 27  # sets seed for online eval
     eval_freq: int = int(1e4)  # How often (time steps) we evaluate
     n_episodes: int = 10  # How many episodes run during evaluation
-    max_timesteps: int = int(150000)  # Max time steps to run environment
+    max_timesteps: int = int(200000)  # Max time steps to run environment
     checkpoints_path: Optional[str] = None  # Save path
     load_model: str = ""  # Model load file name, "" doesn't load
     buffer_size: int = 2_000_000  # Replay buffer size
