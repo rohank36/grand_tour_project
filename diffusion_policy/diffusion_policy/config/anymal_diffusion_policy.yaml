@@ -1,0 +1,145 @@
+_target_: diffusion_policy.workspace.train_diffusion_transformer_lowdim_workspace.TrainDiffusionTransformerLowdimWorkspace
+
+action_dim: 12
+obs_dim: 36  # Your observation dimension (no goals)
+
+checkpoint:
+  save_last_ckpt: true
+  save_last_snapshot: false
+  topk:
+    format_str: epoch={epoch:04d}-test_mean_score={test_mean_score:.3f}.ckpt
+    k: 5
+    mode: max
+    monitor_key: test_mean_score
+
+dataloader:
+  batch_size: 256
+  num_workers: 1
+  persistent_workers: false
+  pin_memory: true
+  shuffle: true
+
+ema:
+  _target_: diffusion_policy.model.diffusion.ema_model.EMAModel
+  inv_gamma: 1.0
+  max_value: 0.9999
+  min_value: 0.0
+  power: 0.75
+  update_after_step: 0
+
+exp_name: default
+horizon: 16
+n_action_steps: 8
+n_latency_steps: 0
+n_obs_steps: 2
+
+logging:
+  group: null
+  id: null
+  mode: online
+  name: anymal_diffusion_transformer
+  project: grand_tour
+  resume: true
+  tags:
+  - train_diffusion_transformer_lowdim
+  - anymal
+  - default
+
+name: train_diffusion_transformer_lowdim
+obs_as_cond: true
+
+optimizer:
+  betas:
+  - 0.9
+  - 0.95
+  learning_rate: 0.0001
+  weight_decay: 0.001
+
+past_action_visible: false
+pred_action_steps_only: false
+
+policy:
+  _target_: diffusion_policy.policy.diffusion_transformer_lowdim_policy.DiffusionTransformerLowdimPolicy
+  action_dim: 12
+  horizon: 16
+  model:
+    _target_: diffusion_policy.model.diffusion.transformer_for_diffusion.TransformerForDiffusion
+    causal_attn: true
+    cond_dim: 36  # Match your obs_dim (no goals)
+    horizon: 16
+    input_dim: 12
+    n_cond_layers: 0
+    n_emb: 256
+    n_head: 8
+    n_layer: 6
+    n_obs_steps: 2
+    obs_as_cond: true
+    output_dim: 12
+    p_drop_attn: 0.3
+    p_drop_emb: 0.0
+    time_as_cond: true
+    separate_goal_conditioning: false  # No goals in your dataset
+  n_action_steps: 8
+  n_obs_steps: 2
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    beta_start: 0.0001
+    clip_sample: true
+    num_train_timesteps: 20
+    prediction_type: epsilon
+    variance_type: fixed_small
+  num_inference_steps: 20
+  obs_as_cond: true
+  obs_dim: 36
+  pred_action_steps_only: false
+
+task:
+  action_dim: 12
+  dataset:
+    _target_: diffusion_policy.dataset.anymal_dataset.AnymalDataset
+    hdf5_path: offline_dataset.hdf5  # Your HDF5 dataset
+    horizon: 16
+    pad_after: 7
+    pad_before: 1
+    seed: 42
+    val_ratio: 0.0  # No validation split (using online eval)
+    state_key: state
+    action_key: action
+  env_runner:
+    _target_: diffusion_policy.env_runner.anymal_runner.AnymalRunner
+    task_name: anymal_d_flat
+    seed: 27
+    normalize: false
+    dataset_path: offline_dataset.hdf5
+  name: anymal_lowdim
+  obs_dim: 36
+
+task_name: anymal_lowdim
+
+training:
+  checkpoint_every: 10
+  debug: false
+  device: cuda:0
+  gradient_accumulate_every: 1
+  lr_scheduler: cosine
+  lr_warmup_steps: 10000
+  max_train_steps: null
+  max_val_steps: null
+  num_epochs: 1000
+  resume: true
+  rollout_every: 10  # Run online eval every 10 epochs
+  sample_every: 10
+  seed: 42
+  tqdm_interval_sec: 1.0
+  use_ema: true
+  val_every: 10
+
+val_dataloader:
+  batch_size: 2048
+  num_workers: 1
+  persistent_workers: false
+  pin_memory: true
+  shuffle: false
+
