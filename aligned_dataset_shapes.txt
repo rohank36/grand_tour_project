@@ -336,18 +336,18 @@ anymal_command_twist:
 Building Offline Dataset...
 
 Offline Dataset:
-observations: <class 'numpy.ndarray'> (852249, 36)
+observations: <class 'numpy.ndarray'> (852249, 48)
 actions: <class 'numpy.ndarray'> (852249, 12)
-next_observations: <class 'numpy.ndarray'> (852249, 36)
+next_observations: <class 'numpy.ndarray'> (852249, 48)
 rewards: <class 'numpy.ndarray'> (852249,)
 terminals: <class 'numpy.ndarray'> (852249,)
 Total episodes: 853
-Median Episode Return: 25.80169853197373
+Median Episode Return: 25.86866495242515
 
 ============================================================
 Per-Term Average Episode Rewards:
 ============================================================
-action_rate              :    -0.0829 per episode,  -0.000083 per step
+action_rate              :    -0.0207 per episode,  -0.000021 per step
 ang_vel_xy               :    -0.0227 per episode,  -0.000023 per step
 dof_acc                  :    -0.1404 per episode,  -0.000141 per step
 feet_air_time            :     0.0000 per episode,   0.000000 per step

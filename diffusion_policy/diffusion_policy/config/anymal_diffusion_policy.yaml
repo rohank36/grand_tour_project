@@ -37,7 +37,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: anymal_diffusion_transformer
+  name: diffuseloco_transformer_isaac
   project: grand_tour
   resume: true
   tags:
@@ -99,7 +99,7 @@ task:
   action_dim: 12
   dataset:
     _target_: diffusion_policy.dataset.anymal_dataset.AnymalDataset
-    hdf5_path: offline_dataset.hdf5  # Your HDF5 dataset
+    hdf5_path: expert_dataset.hdf5  # Your HDF5 dataset
     horizon: 16
     pad_after: 7
     pad_before: 1
