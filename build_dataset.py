@@ -7,158 +7,15 @@ from reward import compute_rewards_offline
 import h5py
 from isaac_compatibility import *
 
-def _to_np(x):
-    return np.asarray(x[:]) if hasattr(x, '__getitem__') and not isinstance(x, np.ndarray) else np.asarray(x)
+# Dataset configuration class
+class DatasetConfig:
+    scale_lin_vel = True
+    scale_ang_vel = True
+    scale_commands = True
+    scale_joint_pos = True
+    scale_joint_vel = True
+    scale_actions = True
 
-def _search_zoh_indices(src_ts, tgt_ts):
-    """
-    Vectorized zero order hold: for each target time, pick the last src index with src_ts <= tgt
-    in english: find the index of the last source timestamp that happened at or before that time.
-    Returns idx array (int) with -1 where no src sample exists yet
-    """
-    idx = np.searchsorted(src_ts, tgt_ts, side='right') - 1
-    return idx
-
-def _resample_group_zoh(group, tgt_ts, ts_key="timestamp", skip_keys=("timestamp","sequence_id")):
-    """
-    Resample all fields in a Zarr group to tgt_ts using ZOH.
-    """
-    out = {}
-    src_ts = _to_np(group[ts_key])
-
-    # Assure ascending timestamps
-    if not np.all(src_ts[:-1] <= src_ts[1:]):
-        order = np.argsort(src_ts)
-        src_ts = src_ts[order]
-        # Reorder all fields to keep arrays aligned
-        for key in group.keys():
-            if key in skip_keys: 
-                continue
-            arr = _to_np(group[key])
-            out[key] = arr[order]  # temp store; we’ll overwrite after computing indices
-        reordered = True
-    else:
-        reordered = False
-
-    idx = _search_zoh_indices(src_ts, tgt_ts)  # -1 if tgt time is before first src sample
-    # For each tgt time stamp, find which source timestamp (from og sensor) was the most recent reading that happened <= the tgt time
-    # --> so idx are the row of the original sensor data to use for each new aligned time step
-
-    # Build a safe index for gather; we’ll mask invalids later
-    safe_idx = idx.copy()
-    safe_idx[safe_idx < 0] = 0
-    safe_idx[safe_idx >= len(src_ts)] = len(src_ts) - 1
-
-    for key in group.keys():
-        if key in skip_keys: 
-            continue
-
-        arr = _to_np(group[key]) if not (reordered and key in out) else out[key]
-        # Gather
-        res = arr[safe_idx]
-        # Mask times before the first source sample (the -1s from _search_zoh_indices) as NaN 
-        if res.dtype.kind in ('f',):  # floating types: use NaN
-            res[idx < 0] = np.nan
-        else:
-            # For non-floats (ints, bools), you can choose a sentinel; here we keep first value.
-            pass
-        out[key] = res
-
-    # Always return the resampled timestamps too (the grid)
-    out["timestamp_50hz"] = tgt_ts
-    return out
-
-def _overlap_window(mission_root, sensors, ts_key="timestamp"):
-    """Compute overlapping [start, end] across sensors to avoid extrapolation beyond last sample."""
-    starts = []
-    ends = []
-    for s in sensors:
-        ts = _to_np(mission_root[s][ts_key])
-        starts.append(ts[0])
-        ends.append(ts[-1])
-    return max(starts), min(ends)
-
-def build_50hz_grid(t_start, t_end, DT, TARGET_HZ):
-    # Inclusive start, inclusive end if it lands exactly; otherwise stops before end
-    n = int(np.floor((t_end - t_start) * TARGET_HZ)) + 1
-    return (t_start + np.arange(n) * DT).astype(np.float64)
-
-# main entrypoint
-def align_mission_to_50hz(mission_root, sensors, DT, TARGET_HZ, ts_key="timestamp"):
-    """
-    Returns:
-      {
-        "t": np.ndarray [T],  # 50 Hz grid
-        "sensors": {
-            sensor_name: { field: np.ndarray[T, ...], "timestamp_50hz": np.ndarray[T] }
-        }
-      }
-    """
-    t0, t1 = _overlap_window(mission_root, sensors, ts_key=ts_key)
-    tgt_ts = build_50hz_grid(t0, t1, DT, TARGET_HZ)
-
-    aligned = {}
-    for s in sensors:
-        aligned[s] = _resample_group_zoh(mission_root[s], tgt_ts, ts_key=ts_key)
-
-    return {"t": tgt_ts, "sensors": aligned}
-
-    
-dataset_folder = Path("~/Projects/rohan/grand_tour_project/grand_tour_code/missions").expanduser()
-missions = [d.name for d in dataset_folder.iterdir() if d.is_dir()]
-print(f"Total {len(missions)} missions")
-
-topics = [
-        "anymal_state_odometry",
-        "anymal_state_state_estimator",
-        "anymal_imu",
-        "anymal_state_actuator",
-        "anymal_command_twist",
-        #"hdr_front",
-        #"hdr_left",
-        #"hdr_right"
-]
-
-TARGET_HZ = 50.0
-DT = 1.0 / TARGET_HZ
-aligned = {}
-
-idx = 1
-for mission in missions:
-
-    print(f"Aligning {mission} ({idx}/{len(missions)})")
-
-    mission_folder = dataset_folder / mission
-    mission_root = zarr.open_group(store=mission_folder / "data", mode='r')
-
-    if idx == 1:
-        # init aligned data 
-        aligned = align_mission_to_50hz(mission_root, topics, DT, TARGET_HZ)
-
-    else:
-        # build aligned data 
-        aligned_tmp = align_mission_to_50hz(mission_root, topics, DT, TARGET_HZ)
-        for k in list(aligned_tmp["sensors"].keys()):
-            for k2 in list(aligned_tmp["sensors"][k].keys()):
-                aligned["sensors"][k][k2] = np.concatenate((aligned["sensors"][k][k2], aligned_tmp["sensors"][k][k2]), axis=0)
-
-    idx += 1
-
-print("\nAlignment done.\n")
-
-output_file = "aligned_dataset_shapes.txt"
-
-with open(output_file, "w") as f:
-    for sensor in topics:
-        f.write(f"{sensor}:\n")
-        keys = sorted(aligned["sensors"][sensor].keys())
-        for key in keys:
-            shape = aligned["sensors"][sensor][key].shape
-            dtype = type(aligned["sensors"][sensor][key])
-            f.write(f"-->    {key} {shape} {dtype}\n")
-        f.write("------------------------------\n\n")
-
-print(f"Sensor info written to {output_file}")
 
 # build offline rl dataset 
 
@@ -194,7 +51,7 @@ def quat_rotate_inverse(q, v):
     c = 2.0 * q_vec * dot_product
     return a - b + c
 
-def build_offline_dataset(data, episode_len_s=20, hz=50):
+def build_offline_dataset(data, cfg=DatasetConfig(), episode_len_s=20, hz=50):
     """Convert aligned ANYmal sensor data into offline RL dataset."""
 
     est = data["sensors"]["anymal_state_state_estimator"]
@@ -241,7 +98,10 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
 
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
-    #actions = make_actions_compatible(actions)
+    if cfg.scale_actions:
+        actions = make_actions_compatible(actions)
+    else:
+        actions = actions
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
@@ -258,17 +118,12 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     # re order concatenation to match Isaac Gym standard
     # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
     obs = np.concatenate([
-        #scale_lin_vel(base_lin_vel),       # 3
-        base_lin_vel,
-        #scale_ang_vel(base_ang_vel),       # 3
-        base_ang_vel,
+        scale_lin_vel(base_lin_vel) if cfg.scale_lin_vel else base_lin_vel, # 3
+        scale_ang_vel(base_ang_vel) if cfg.scale_ang_vel else base_ang_vel, # 3
         projected_gravity,  # 3
-        #scale_commands(commands_xy_yaw),    # 3  
-        commands_xy_yaw,
-        #scale_joint_pos(joint_pos),          # 12
-        joint_pos,
-        #scale_joint_vel(joint_vel),          # 12
-        joint_vel,
+        scale_commands(commands_xy_yaw) if cfg.scale_commands else commands_xy_yaw, # 3
+        scale_joint_pos(joint_pos) if cfg.scale_joint_pos else joint_pos, # 12
+        scale_joint_vel(joint_vel) if cfg.scale_joint_vel else joint_vel, # 12
         prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
@@ -349,10 +204,6 @@ def save_offline_dataset_hdf5(dataset, filename="offline_dataset.hdf5"):
             )
     print(f"Saved dataset to {filename}\n")
 
-print("\nBuilding Offline Dataset...")
-dataset, episode_sums_total = build_offline_dataset(aligned)
-save_offline_dataset_hdf5(dataset)
-
 def episode_returns(rewards, terminals):
     episode_sums = []
     current_sum = 0.0
@@ -368,47 +219,3 @@ def episode_returns(rewards, terminals):
 
     return np.array(episode_sums)
 
-
-# Write dataset info to file and print
-with open(output_file, "a") as f:
-    f.write("\nBuilding Offline Dataset...\n")
-    f.write("\nOffline Dataset:\n")
-    for k in list(dataset.keys()):
-        info = f"{k}: {type(dataset[k])} {dataset[k].shape}\n"
-        print(info.strip())
-        f.write(info)
-    
-    ep_ret = episode_returns(dataset["rewards"], dataset["terminals"])
-    total_episodes = f"Total episodes: {len(ep_ret)}\n"
-    median_return = f"Median Episode Return: {np.median(ep_ret)}\n"
-    
-    print(total_episodes.strip())
-    print(median_return.strip())
-    
-    f.write(total_episodes)
-    f.write(median_return)
-    
-    # Compute and print per-term average episode rewards
-    T_total = len(dataset["rewards"])
-    num_episodes = len(ep_ret)
-    avg_episode_length = T_total / num_episodes if num_episodes > 0 else 0
-    
-    print("\n" + "="*60)
-    print("Per-Term Average Episode Rewards:")
-    print("="*60)
-    f.write("\n" + "="*60 + "\n")
-    f.write("Per-Term Average Episode Rewards:\n")
-    f.write("="*60 + "\n")
-    
-    for term_name, term_total in sorted(episode_sums_total.items()):
-        # Adjust for the fact that we computed on full length but dataset is shifted
-        term_total_adjusted = term_total  # Already computed on full length
-        avg_per_episode = term_total_adjusted / num_episodes if num_episodes > 0 else 0
-        avg_per_step = term_total_adjusted / T_total if T_total > 0 else 0
-        
-        info = f"{term_name:25s}: {avg_per_episode:10.4f} per episode, {avg_per_step:10.6f} per step\n"
-        print(info.strip())
-        f.write(info)
-    
-    print("="*60)
-    f.write("="*60 + "\n")
