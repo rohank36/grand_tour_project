@@ -40,17 +40,20 @@ def wasserstein_distance_multi(X, Y):
     
     return np.mean(distances)
 
-def mmd_rbf(X, Y, gamma=1.0):
+def mmd_rbf(X, Y, gamma=1.0, max_samples=10000):
     """
     Compute Maximum Mean Discrepancy (MMD) with RBF kernel.
     
     MMD² = E[k(x,x')] - 2E[k(x,y)] + E[k(y,y')]
     where k(x,y) = exp(-gamma * ||x-y||²)
     
+    For large datasets, samples a subset to avoid memory issues.
+    
     Args:
         X: (N, D) array
         Y: (M, D) array
         gamma: RBF kernel bandwidth parameter
+        max_samples: Maximum number of samples to use (default: 10000)
     
     Returns:
         MMD² value (lower is better = more similar)
@@ -63,6 +66,16 @@ def mmd_rbf(X, Y, gamma=1.0):
         X = X.reshape(-1, 1)
     if Y.ndim == 1:
         Y = Y.reshape(-1, 1)
+    
+    # Sample subset if dataset is too large
+    n = len(X)
+    if n > max_samples:
+        # Randomly sample indices
+        np.random.seed(42)  # For reproducibility
+        indices = np.random.choice(n, size=max_samples, replace=False)
+        X = X[indices]
+        Y = Y[indices]
+        n = max_samples
     
     # RBF kernel: k(x, y) = exp(-gamma * ||x - y||²)
     def rbf_kernel(X1, X2):
@@ -77,7 +90,6 @@ def mmd_rbf(X, Y, gamma=1.0):
     # E[k(x, x')] - average over all pairs in X
     K_XX = rbf_kernel(X, X)
     # Exclude diagonal (self-similarity) for unbiased estimate
-    n = len(X)
     E_XX = (np.sum(K_XX) - np.trace(K_XX)) / (n * (n - 1)) if n > 1 else 0.0
     
     # E[k(y, y')] - average over all pairs in Y
