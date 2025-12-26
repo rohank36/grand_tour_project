@@ -124,7 +124,7 @@ def build_offline_dataset(data, cfg=DatasetConfig(), episode_len_s=20, hz=50):
         scale_commands(commands_xy_yaw) if cfg.scale_commands else commands_xy_yaw, # 3
         scale_joint_pos(joint_pos) if cfg.scale_joint_pos else joint_pos, # 12
         scale_joint_vel(joint_vel) if cfg.scale_joint_vel else joint_vel, # 12
-        prev_actions,       # 12
+        #prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
     """

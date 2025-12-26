@@ -1,5 +1,5 @@
-from align_data import align_data
-from build_dataset import build_offline_dataset, save_offline_dataset_hdf5, episode_returns
+from align_data import align_data, load_aligned_data
+from build_dataset import build_offline_dataset, save_offline_dataset_hdf5, episode_returns, DatasetConfig
 import numpy as np
 
 print("\nBuilding Offline Dataset...")
@@ -14,9 +14,11 @@ topics = [
             #"hdr_right"
         ]
 
-aligned = align_data(topics=topics, save_aligned=False)
-output_file = "aligned_dataset_shapes.txt"
+# if aligned data has already been instantiated, then can just load the aligned data. 
+#aligned = align_data(topics=topics, save_aligned=False)
+aligned = load_aligned_data("aligned_data.zarr")
 
+output_file = "aligned_dataset_shapes.txt"
 with open(output_file, "w") as f:
     for sensor in topics:
         f.write(f"{sensor}:\n")
@@ -28,7 +30,9 @@ with open(output_file, "w") as f:
         f.write("------------------------------\n\n")
 
 print(f"Sensor info written to {output_file}")
-dataset, episode_sums_total = build_offline_dataset(aligned)
+ds_cfg = DatasetConfig()
+# set config here
+dataset, episode_sums_total = build_offline_dataset(aligned,ds_cfg)
 save_offline_dataset_hdf5(dataset)
 
 # Write dataset info to file and print

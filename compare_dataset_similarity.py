@@ -109,14 +109,13 @@ def generate_all_configs():
     configs = []
     # Generate all combinations: 2^6 = 64
     for combo in itertools.product([False, True], repeat=6):
-        cfg = DatasetConfig(
-            scale_lin_vel=combo[0],
-            scale_ang_vel=combo[1],
-            scale_commands=combo[2],
-            scale_joint_pos=combo[3],
-            scale_joint_vel=combo[4],
-            scale_actions=combo[5]
-        )
+        cfg = DatasetConfig()  # Create instance with no arguments
+        cfg.scale_lin_vel = combo[0]  # Set attributes after creation
+        cfg.scale_ang_vel = combo[1]
+        cfg.scale_commands = combo[2]
+        cfg.scale_joint_pos = combo[3]
+        cfg.scale_joint_vel = combo[4]
+        cfg.scale_actions = combo[5]
         configs.append(cfg)
     
     return configs
@@ -158,7 +157,7 @@ if __name__ == "__main__":
     print("="*80)
     
     # Load data once
-    aligned_data_path = "aligned_dataset.zarr"
+    aligned_data_path = "aligned_data.zarr"
     print(f"\nLoading aligned data from {aligned_data_path}...")
     aligned_data = load_aligned_data(aligned_data_path)
     
