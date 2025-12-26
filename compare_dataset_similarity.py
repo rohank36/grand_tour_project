@@ -132,9 +132,21 @@ def generate_all_configs():
     
     return configs
 
-def compare_similarity(aligned_data, ds_cfg, target_obs, target_actions):
+def compare_similarity(aligned_data, ds_cfg, target_obs, target_actions, 
+                       obs_mean, obs_std, act_mean, act_std):
     """
     Build dataset with given config and compute similarity metrics.
+    Both datasets are normalized using the target dataset statistics.
+    
+    Args:
+        aligned_data: Aligned sensor data
+        ds_cfg: Dataset configuration
+        target_obs: Target observations (unnormalized)
+        target_actions: Target actions (unnormalized)
+        obs_mean: Mean for normalizing observations (from target dataset)
+        obs_std: Std for normalizing observations (from target dataset)
+        act_mean: Mean for normalizing actions (from target dataset)
+        act_std: Std for normalizing actions (from target dataset)
     
     Returns:
         obs_wasserstein: Wasserstein distance for observations
@@ -148,13 +160,20 @@ def compare_similarity(aligned_data, ds_cfg, target_obs, target_actions):
     obs = dataset["observations"]
     actions = dataset["actions"]
     
-    # Compute Wasserstein distances
-    obs_wasserstein = wasserstein_distance_multi(obs, target_obs)
-    act_wasserstein = wasserstein_distance_multi(actions, target_actions)
+    # Normalize both datasets using target statistics
+    target_obs_norm = (target_obs - obs_mean) / obs_std
+    obs_norm = (obs - obs_mean) / obs_std
     
-    # Compute MMD (RBF) distances
-    obs_mmd = mmd_rbf(obs, target_obs)
-    act_mmd = mmd_rbf(actions, target_actions)
+    target_actions_norm = (target_actions - act_mean) / act_std
+    actions_norm = (actions - act_mean) / act_std
+    
+    # Compute Wasserstein distances on normalized data
+    obs_wasserstein = wasserstein_distance_multi(obs_norm, target_obs_norm)
+    act_wasserstein = wasserstein_distance_multi(actions_norm, target_actions_norm)
+    
+    # Compute MMD (RBF) distances on normalized data
+    obs_mmd = mmd_rbf(obs_norm, target_obs_norm)
+    act_mmd = mmd_rbf(actions_norm, target_actions_norm)
     
     return obs_wasserstein, obs_mmd, act_wasserstein, act_mmd, obs.shape, actions.shape
 
@@ -181,6 +200,14 @@ if __name__ == "__main__":
     print(f"Target observations shape: {target_obs.shape}")
     print(f"Target actions shape: {target_actions.shape}")
     
+    # Compute normalization statistics from target dataset
+    print("Computing normalization statistics from target dataset...")
+    obs_mean = np.mean(target_obs, axis=0)
+    obs_std = np.std(target_obs, axis=0) + 1e-8  # Add small epsilon to avoid division by zero
+    act_mean = np.mean(target_actions, axis=0)
+    act_std = np.std(target_actions, axis=0) + 1e-8
+    print("Normalization statistics computed.")
+    
     # Generate all config combinations
     all_configs = generate_all_configs()
     print(f"\nTesting {len(all_configs)} configuration combinations...")
@@ -201,6 +228,7 @@ if __name__ == "__main__":
         f.write(f"Target actions shape: {target_actions.shape}\n")
         f.write(f"Aligned data path: {aligned_data_path}\n")
         f.write(f"Total configurations to test: {len(all_configs)}\n")
+        f.write(f"\nNote: All metrics computed on normalized data (normalized using target dataset statistics)\n")
         f.write("="*80 + "\n\n")
         
         # Test each configuration
@@ -209,7 +237,8 @@ if __name__ == "__main__":
             
             try:
                 obs_w, obs_mmd, act_w, act_mmd, obs_shape, act_shape = compare_similarity(
-                    aligned_data, cfg, target_obs, target_actions
+                    aligned_data, cfg, target_obs, target_actions,
+                    obs_mean, obs_std, act_mean, act_std
                 )
                 results.append((cfg, obs_w, obs_mmd, act_w, act_mmd, obs_shape, act_shape))
                 
