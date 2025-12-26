@@ -1,5 +1,7 @@
 import numpy as np
 
+""" To make the GrandTour dataset data compatible with Isaac Gym """
+
 default_joint_angles = { # = target angles [rad] when action = 0.0
     "LF_HAA": 0.0,
     "LH_HAA": 0.0,

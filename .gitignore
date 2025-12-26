@@ -7,3 +7,6 @@
 /*test*
 /wandb
 /notes.txt
+**/__pycache__/
+**/*.egg-info/
+outputs/

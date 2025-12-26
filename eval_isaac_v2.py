@@ -14,10 +14,12 @@ from tqdm import tqdm
 
 from reward import rewards
 from utils import compute_mean_std, load_hdf5_dataset
+from grandtour_compatibility import unscale_observations
+from isaac_compatibility import make_actions_compatible
 
 class OnlineEval:
 
-    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=True):
+    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=False):
         args = get_args()
         args.seed = seed
         args.task = task_name
@@ -141,7 +143,7 @@ class OnlineEval:
         env_cfg = self.env_cfg
 
         obs = env.get_observations()
-        obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+        #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
         
         logger = Logger(env.dt) # note env.dt = 0.0199999 
         robot_index = 0  # which robot is used for logging
@@ -179,6 +181,9 @@ class OnlineEval:
         # max_episode_length = 1001
         for i in range(num_repetitions * int(max_episode_length)+2):
         #for i in tqdm(range(num_repetitions * int(max_episode_length)+2),desc="Online IG Eval"):
+
+            obs = unscale_observations(obs, device=device)
+
             # Normalize observations before feeding to actor
             if self.normalize:
                 obs_normalized = (obs - state_mean_torch) / state_std_torch
@@ -197,12 +202,55 @@ class OnlineEval:
                 obs_all_list.append(obs.cpu().numpy())
             
             actions = actor.act_inference(obs_normalized.detach())
-            # Store actions for per-dimension analysis
+            
+            # Convert actions from absolute positions (GrandTour format) to offsets (Isaac Gym format)
+            # Policy outputs absolute positions, but Isaac Gym expects normalized offsets
+            actions_np = actions.detach().cpu().numpy()
+            actions_isaac = make_actions_compatible(actions_np)
+            actions_isaac = torch.tensor(actions_isaac, device=actions.device, dtype=actions.dtype)
+            
+            # Store actions for per-dimension analysis (from policy output, before conversion)
             with torch.no_grad():
-                actions_all_list.append(actions.cpu().numpy())
-            obs, _, rews, dones, infos = env.step(actions.detach())
-            obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+                actions_all_list.append(actions_np)
+            
+            obs, _, rews, dones, infos = env.step(actions_isaac.detach())
+            #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
 
+            """
+            #################TESTING #########################
+            # Print initial observations after environment reset (UNSCALED)
+            done_indices = torch.where(dones.squeeze() == 1)[0]
+            if len(done_indices) > 0:
+                # Get observations for environments that just reset
+                reset_obs = obs[done_indices]
+                
+                # Unscale the observations to get raw values
+                reset_obs_unscaled = unscale_observations(reset_obs, device=device)
+                
+                # Print stats for reset observations (first reset only to avoid spam)
+                if not hasattr(self, '_reset_obs_printed'):
+                    self._reset_obs_printed = True
+                    print(f"\n=== Initial UNSCALED Observations After Reset (first occurrence) ===")
+                    print(f"Number of environments reset: {len(done_indices)}")
+                    print(f"Observation shape: {reset_obs_unscaled.shape}")
+                    print(f"Unscaled observation stats (mean, std, min, max):")
+                    print(f"  Mean: {reset_obs_unscaled.mean().item():.6f}")
+                    print(f"  Std:  {reset_obs_unscaled.std().item():.6f}")
+                    print(f"  Min:  {reset_obs_unscaled.min().item():.6f}")
+                    print(f"  Max:  {reset_obs_unscaled.max().item():.6f}")
+                    
+                    # Print per-dimension values for first reset environment
+                    if len(done_indices) > 0:
+                        first_reset_env = done_indices[0].item()
+                        print(f"\nPer-dimension UNSCALED observation values for environment {first_reset_env}:")
+                        obs_values_unscaled = reset_obs_unscaled[0].cpu().numpy()
+                        for dim_idx, val in enumerate(obs_values_unscaled):
+                            print(f"  dim_{dim_idx:3d}: {val:8.6f}")
+                    print("=" * 60)
+
+
+            ##################################################
+            """
             # Accumulate rewards per environment (matching OnPolicyRunner approach)
             cur_reward_sum += rews.squeeze()
 

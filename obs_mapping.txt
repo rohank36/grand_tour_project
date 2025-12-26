@@ -1,0 +1,92 @@
+OBSERVATION_INDEX_MAPPING = [
+    # Indices 0-2: Scaled Base Linear Velocity (in body frame)
+    # base_lin_vel * LIN_VEL_SCALE (2.0)
+    (0, "base_lin_vel_x_body", "Scaled base linear velocity X in body frame (m/s * 2.0)"),
+    (1, "base_lin_vel_y_body", "Scaled base linear velocity Y in body frame (m/s * 2.0)"),
+    (2, "base_lin_vel_z_body", "Scaled base linear velocity Z in body frame (m/s * 2.0)"),
+    
+    # Indices 3-5: Scaled Base Angular Velocity (in body frame)
+    # base_ang_vel * ANG_VEL_SCALE (0.25)
+    (3, "base_ang_vel_x_body", "Scaled base angular velocity X in body frame (rad/s * 0.25)"),
+    (4, "base_ang_vel_y_body", "Scaled base angular velocity Y in body frame (rad/s * 0.25)"),
+    (5, "base_ang_vel_z_body", "Scaled base angular velocity Z in body frame (rad/s * 0.25)"),
+    
+    # Indices 6-8: Projected Gravity (in body frame)
+    # quat_rotate_inverse(base_quat, gravity_vec)
+    (6, "projected_gravity_x", "Projected gravity X component in body frame"),
+    (7, "projected_gravity_y", "Projected gravity Y component in body frame"),
+    (8, "projected_gravity_z", "Projected gravity Z component in body frame"),
+    
+    # Indices 9-11: Scaled Commands (in body frame)
+    # commands_xy_yaw * COMMANDS_SCALE ([2.0, 2.0, 0.25])
+    (9, "command_lin_vel_x_body", "Scaled linear velocity command X in body frame (m/s * 2.0)"),
+    (10, "command_lin_vel_y_body", "Scaled linear velocity command Y in body frame (m/s * 2.0)"),
+    (11, "command_ang_vel_yaw_body", "Scaled angular velocity command yaw in body frame (rad/s * 0.25)"),
+    
+    # Indices 12-23: Scaled Joint Positions (12 joints)
+    # (joint_pos - default_dof_pos) * obs_scale (1.0)
+    # Joint order: LF_HAA, LF_HFE, LF_KFE, RF_HAA, RF_HFE, RF_KFE, LH_HAA, LH_HFE, LH_KFE, RH_HAA, RH_HFE, RH_KFE
+    (12, "joint_pos_LF_HAA", "Scaled joint position: Left Front Hip Abduction/Adduction (rad)"),
+    (13, "joint_pos_LF_HFE", "Scaled joint position: Left Front Hip Flexion/Extension (rad)"),
+    (14, "joint_pos_LF_KFE", "Scaled joint position: Left Front Knee Flexion/Extension (rad)"),
+    (15, "joint_pos_RF_HAA", "Scaled joint position: Right Front Hip Abduction/Adduction (rad)"),
+    (16, "joint_pos_RF_HFE", "Scaled joint position: Right Front Hip Flexion/Extension (rad)"),
+    (17, "joint_pos_RF_KFE", "Scaled joint position: Right Front Knee Flexion/Extension (rad)"),
+    (18, "joint_pos_LH_HAA", "Scaled joint position: Left Hind Hip Abduction/Adduction (rad)"),
+    (19, "joint_pos_LH_HFE", "Scaled joint position: Left Hind Hip Flexion/Extension (rad)"),
+    (20, "joint_pos_LH_KFE", "Scaled joint position: Left Hind Knee Flexion/Extension (rad)"),
+    (21, "joint_pos_RH_HAA", "Scaled joint position: Right Hind Hip Abduction/Adduction (rad)"),
+    (22, "joint_pos_RH_HFE", "Scaled joint position: Right Hind Hip Flexion/Extension (rad)"),
+    (23, "joint_pos_RH_KFE", "Scaled joint position: Right Hind Knee Flexion/Extension (rad)"),
+    
+    # Indices 24-35: Scaled Joint Velocities (12 joints)
+    # joint_vel * DOF_VEL_SCALE (0.05)
+    # Same joint order as positions
+    (24, "joint_vel_LF_HAA", "Scaled joint velocity: Left Front Hip Abduction/Adduction (rad/s * 0.05)"),
+    (25, "joint_vel_LF_HFE", "Scaled joint velocity: Left Front Hip Flexion/Extension (rad/s * 0.05)"),
+    (26, "joint_vel_LF_KFE", "Scaled joint velocity: Left Front Knee Flexion/Extension (rad/s * 0.05)"),
+    (27, "joint_vel_RF_HAA", "Scaled joint velocity: Right Front Hip Abduction/Adduction (rad/s * 0.05)"),
+    (28, "joint_vel_RF_HFE", "Scaled joint velocity: Right Front Hip Flexion/Extension (rad/s * 0.05)"),
+    (29, "joint_vel_RF_KFE", "Scaled joint velocity: Right Front Knee Flexion/Extension (rad/s * 0.05)"),
+    (30, "joint_vel_LH_HAA", "Scaled joint velocity: Left Hind Hip Abduction/Adduction (rad/s * 0.05)"),
+    (31, "joint_vel_LH_HFE", "Scaled joint velocity: Left Hind Hip Flexion/Extension (rad/s * 0.05)"),
+    (32, "joint_vel_LH_KFE", "Scaled joint velocity: Left Hind Knee Flexion/Extension (rad/s * 0.05)"),
+    (33, "joint_vel_RH_HAA", "Scaled joint velocity: Right Hind Hip Abduction/Adduction (rad/s * 0.05)"),
+    (34, "joint_vel_RH_HFE", "Scaled joint velocity: Right Hind Hip Flexion/Extension (rad/s * 0.05)"),
+    (35, "joint_vel_RH_KFE", "Scaled joint velocity: Right Hind Knee Flexion/Extension (rad/s * 0.05)"),
+    
+    # Indices 36-47: Previous Actions (12 joints)
+    # Previous timestep's actions (normalized: (absolute_pos - default_dof_pos) / action_scale)
+    # Same joint order as positions
+    (36, "prev_action_LF_HAA", "Previous action: Left Front Hip Abduction/Adduction (normalized)"),
+    (37, "prev_action_LF_HFE", "Previous action: Left Front Hip Flexion/Extension (normalized)"),
+    (38, "prev_action_LF_KFE", "Previous action: Left Front Knee Flexion/Extension (normalized)"),
+    (39, "prev_action_RF_HAA", "Previous action: Right Front Hip Abduction/Adduction (normalized)"),
+    (40, "prev_action_RF_HFE", "Previous action: Right Front Hip Flexion/Extension (normalized)"),
+    (41, "prev_action_RF_KFE", "Previous action: Right Front Knee Flexion/Extension (normalized)"),
+    (42, "prev_action_LH_HAA", "Previous action: Left Hind Hip Abduction/Adduction (normalized)"),
+    (43, "prev_action_LH_HFE", "Previous action: Left Hind Hip Flexion/Extension (normalized)"),
+    (44, "prev_action_LH_KFE", "Previous action: Left Hind Knee Flexion/Extension (normalized)"),
+    (45, "prev_action_RH_HAA", "Previous action: Right Hind Hip Abduction/Adduction (normalized)"),
+    (46, "prev_action_RH_HFE", "Previous action: Right Hind Hip Flexion/Extension (normalized)"),
+    (47, "prev_action_RH_KFE", "Previous action: Right Hind Knee Flexion/Extension (normalized)"),
+]
+
+# Summary by ranges:
+OBSERVATION_RANGES = {
+    "base_lin_vel": (0, 3, "Scaled base linear velocity in body frame [vx, vy, vz] * 2.0"),
+    "base_ang_vel": (3, 6, "Scaled base angular velocity in body frame [wx, wy, wz] * 0.25"),
+    "projected_gravity": (6, 9, "Projected gravity vector in body frame [gx, gy, gz]"),
+    "commands": (9, 12, "Scaled commands in body frame [lin_vel_x, lin_vel_y, ang_vel_yaw] * [2.0, 2.0, 0.25]"),
+    "joint_positions": (12, 24, "Scaled joint positions (12 joints: LF, RF, LH, RH × HAA, HFE, KFE)"),
+    "joint_velocities": (24, 36, "Scaled joint velocities (12 joints: LF, RF, LH, RH × HAA, HFE, KFE) * 0.05"),
+    "previous_actions": (36, 48, "Previous timestep actions (12 joints: LF, RF, LH, RH × HAA, HFE, KFE)"),
+}
+
+# Joint name mapping for indices 12-47
+JOINT_NAMES = [
+    "LF_HAA", "LF_HFE", "LF_KFE",  # Left Front: 0-2
+    "RF_HAA", "RF_HFE", "RF_KFE",  # Right Front: 3-5
+    "LH_HAA", "LH_HFE", "LH_KFE",  # Left Hind: 6-8
+    "RH_HAA", "RH_HFE", "RH_KFE",  # Right Hind: 9-11
+]

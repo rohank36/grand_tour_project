@@ -241,7 +241,7 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     act_keys = [f"{i:02d}_command_position" for i in range(12)]
 
     actions = np.stack([act[k] for k in act_keys], axis=-1)   # (T, 12)
-    actions = make_actions_compatible(actions)
+    #actions = make_actions_compatible(actions)
 
     prev_actions = np.zeros_like(actions)
     prev_actions[1:] = actions[:-1]
@@ -258,18 +258,18 @@ def build_offline_dataset(data, episode_len_s=20, hz=50):
     # re order concatenation to match Isaac Gym standard
     # BaseLin(3), BaseAng(3), Grav(3), Cmds(3), JointPos(12), JointVel(12), PrevAct(12)
     obs = np.concatenate([
-        scale_lin_vel(base_lin_vel),       # 3
-        #base_lin_vel,
-        scale_ang_vel(base_ang_vel),       # 3
-        #base_ang_vel,
+        #scale_lin_vel(base_lin_vel),       # 3
+        base_lin_vel,
+        #scale_ang_vel(base_ang_vel),       # 3
+        base_ang_vel,
         projected_gravity,  # 3
-        scale_commands(commands_xy_yaw),    # 3  
-        #commands_xy_yaw,
-        scale_joint_pos(joint_pos),          # 12
-        #joint_pos,
-        scale_joint_vel(joint_vel),          # 12
-        #joint_vel,
-        #prev_actions,       # 12
+        #scale_commands(commands_xy_yaw),    # 3  
+        commands_xy_yaw,
+        #scale_joint_pos(joint_pos),          # 12
+        joint_pos,
+        #scale_joint_vel(joint_vel),          # 12
+        joint_vel,
+        prev_actions,       # 12
     ], axis=-1)             # Total: 48 dimensions
 
     """
