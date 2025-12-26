@@ -1,7 +1,7 @@
 _target_: diffusion_policy.workspace.train_diffusion_transformer_lowdim_workspace.TrainDiffusionTransformerLowdimWorkspace
 
 action_dim: 12
-obs_dim: 36  # Your observation dimension (no goals)
+obs_dim: 48  # Your observation dimension (no goals)
 
 checkpoint:
   save_last_ckpt: true
@@ -37,7 +37,7 @@ logging:
   group: null
   id: null
   mode: online
-  name: diffuseloco_transformer_isaac
+  name: diffuseloco_transformer
   project: grand_tour
   resume: true
   tags:
@@ -65,7 +65,7 @@ policy:
   model:
     _target_: diffusion_policy.model.diffusion.transformer_for_diffusion.TransformerForDiffusion
     causal_attn: true
-    cond_dim: 36  # Match your obs_dim (no goals)
+    cond_dim: 48  # Match your obs_dim (no goals)
     horizon: 16
     input_dim: 12
     n_cond_layers: 0
@@ -92,14 +92,14 @@ policy:
     variance_type: fixed_small
   num_inference_steps: 20
   obs_as_cond: true
-  obs_dim: 36
+  obs_dim: 48
   pred_action_steps_only: false
 
 task:
   action_dim: 12
   dataset:
     _target_: diffusion_policy.dataset.anymal_dataset.AnymalDataset
-    hdf5_path: expert_dataset.hdf5  # Your HDF5 dataset
+    hdf5_path: offline_dataset_pp.hdf5  # Your HDF5 dataset
     horizon: 16
     pad_after: 7
     pad_before: 1
@@ -114,7 +114,7 @@ task:
     normalize: false
     dataset_path: offline_dataset.hdf5
   name: anymal_lowdim
-  obs_dim: 36
+  obs_dim: 48
 
 task_name: anymal_lowdim
 
