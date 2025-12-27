@@ -191,7 +191,7 @@ def build_offline_dataset(data, cfg=DatasetConfig(), episode_len_s=20, hz=50):
 
     return dataset, episode_sums_total
 
-def save_offline_dataset_hdf5(dataset, filename="offline_dataset.hdf5"):
+def save_offline_dataset_hdf5(dataset, filename="offline_dataset_pp.hdf5"):
     with h5py.File(filename, "w") as f:
         for key, arr in dataset.items():
             print(f"Saving {key}: {arr.shape} {arr.dtype}")
