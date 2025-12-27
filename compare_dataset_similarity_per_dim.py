@@ -2,6 +2,37 @@ import numpy as np
 from scipy.stats import wasserstein_distance
 import h5py
 
+# Observation feature names (36 dimensions)
+OBS_FEATURE_NAMES = [
+    # 0-2: Base Linear Velocity
+    "base_lin_vel_x_body", "base_lin_vel_y_body", "base_lin_vel_z_body",
+    # 3-5: Base Angular Velocity
+    "base_ang_vel_x_body", "base_ang_vel_y_body", "base_ang_vel_z_body",
+    # 6-8: Projected Gravity
+    "projected_gravity_x", "projected_gravity_y", "projected_gravity_z",
+    # 9-11: Commands
+    "command_lin_vel_x_body", "command_lin_vel_y_body", "command_ang_vel_yaw_body",
+    # 12-23: Joint Positions (12 joints)
+    "joint_pos_LF_HAA", "joint_pos_LF_HFE", "joint_pos_LF_KFE",
+    "joint_pos_RF_HAA", "joint_pos_RF_HFE", "joint_pos_RF_KFE",
+    "joint_pos_LH_HAA", "joint_pos_LH_HFE", "joint_pos_LH_KFE",
+    "joint_pos_RH_HAA", "joint_pos_RH_HFE", "joint_pos_RH_KFE",
+    # 24-35: Joint Velocities (12 joints)
+    "joint_vel_LF_HAA", "joint_vel_LF_HFE", "joint_vel_LF_KFE",
+    "joint_vel_RF_HAA", "joint_vel_RF_HFE", "joint_vel_RF_KFE",
+    "joint_vel_LH_HAA", "joint_vel_LH_HFE", "joint_vel_LH_KFE",
+    "joint_vel_RH_HAA", "joint_vel_RH_HFE", "joint_vel_RH_KFE",
+]
+
+# Action feature names (12 dimensions)
+# Joint order: ['LF_HAA', 'LF_HFE', 'LF_KFE', 'RF_HAA', 'RF_HFE', 'RF_KFE', 'LH_HAA', 'LH_HFE', 'LH_KFE', 'RH_HAA', 'RH_HFE', 'RH_KFE']
+ACTION_FEATURE_NAMES = [
+    "action_LF_HAA", "action_LF_HFE", "action_LF_KFE",
+    "action_RF_HAA", "action_RF_HFE", "action_RF_KFE",
+    "action_LH_HAA", "action_LH_HFE", "action_LH_KFE",
+    "action_RH_HAA", "action_RH_HFE", "action_RH_KFE",
+]
+
 def wasserstein_per_dimension(X, Y):
     """
     Compute Wasserstein distance for each dimension separately.
@@ -116,12 +147,25 @@ def analyze_dimension_shifts(target_data, config_data, data_type="observations")
     
     combined_score = w_norm * 0.8 + mmd_norm * 0.2
     
+    # Get feature names based on data type
+    if data_type.lower() == "observations":
+        feature_names = OBS_FEATURE_NAMES
+    elif data_type.lower() == "actions":
+        feature_names = ACTION_FEATURE_NAMES
+    else:
+        feature_names = [f"dim_{i}" for i in range(len(wasserstein_per_dim))]
+    
+    # Ensure we have enough feature names
+    if len(feature_names) < len(wasserstein_per_dim):
+        feature_names.extend([f"dim_{i}" for i in range(len(feature_names), len(wasserstein_per_dim))])
+    
     # Create results dictionary
     results = {
         'wasserstein_per_dim': wasserstein_per_dim,
         'mmd_per_dim': mmd_per_dim,
         'combined_score': combined_score,
         'dimension_rankings': np.argsort(combined_score)[::-1],  # Worst to best
+        'feature_names': feature_names,
     }
     
     # Print results
@@ -129,16 +173,18 @@ def analyze_dimension_shifts(target_data, config_data, data_type="observations")
     print(f"{data_type.upper()} - Per-Dimension Distribution Shift Analysis")
     print(f"{'='*80}\n")
     
-    print(f"{'Dim':<6} {'Wasserstein':<15} {'MMD':<15} {'Combined Score':<15} {'Rank'}")
-    print("-" * 80)
+    print(f"{'Dim':<6} {'Feature Name':<30} {'Wasserstein':<15} {'MMD':<15} {'Combined Score':<15} {'Rank'}")
+    print("-" * 100)
     
     for dim_idx in results['dimension_rankings']:
         rank = np.where(results['dimension_rankings'] == dim_idx)[0][0] + 1
-        print(f"{dim_idx:<6} {wasserstein_per_dim[dim_idx]:<15.8f} {mmd_per_dim[dim_idx]:<15.8f} {combined_score[dim_idx]:<15.8f} {rank}")
+        feature_name = feature_names[dim_idx] if dim_idx < len(feature_names) else f"dim_{dim_idx}"
+        print(f"{dim_idx:<6} {feature_name:<30} {wasserstein_per_dim[dim_idx]:<15.8f} {mmd_per_dim[dim_idx]:<15.8f} {combined_score[dim_idx]:<15.8f} {rank}")
     
     print(f"\nTop 5 most problematic dimensions (highest shift):")
     for i, dim_idx in enumerate(results['dimension_rankings'][:5], 1):
-        print(f"  {i}. Dimension {dim_idx}: Wasserstein={wasserstein_per_dim[dim_idx]:.6f}, MMD={mmd_per_dim[dim_idx]:.6f}")
+        feature_name = feature_names[dim_idx] if dim_idx < len(feature_names) else f"dim_{dim_idx}"
+        print(f"  {i}. Dim {dim_idx} ({feature_name}): Wasserstein={wasserstein_per_dim[dim_idx]:.6f}, MMD={mmd_per_dim[dim_idx]:.6f}")
     
     return results
 
