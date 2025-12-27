@@ -32,6 +32,14 @@ with open(output_file, "w") as f:
 print(f"Sensor info written to {output_file}")
 ds_cfg = DatasetConfig()
 # set config here
+ds_cfg.scale_lin_vel = True
+ds_cfg.scale_ang_vel = False
+ds_cfg.scale_commands = True
+ds_cfg.scale_joint_pos = True
+ds_cfg.scale_joint_vel = True
+ds_cfg.scale_actions = True
+
+
 dataset, episode_sums_total = build_offline_dataset(aligned,ds_cfg)
 save_offline_dataset_hdf5(dataset)
 
