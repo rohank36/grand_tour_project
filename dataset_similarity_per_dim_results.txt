@@ -83,13 +83,11 @@ Joint pos - act, Actions - act _command_position
 
 
 
-
-
 #########################################################################################
 changed:
 Joint pos - estimator, Actions - act _command_joint_torque
 result:
-worse
+obs same, actions better
 
 Loading target dataset from expert_dataset.hdf5...
 Target observations shape: (852249, 36)
@@ -104,42 +102,42 @@ OBSERVATIONS - Per-Dimension Distribution Shift Analysis
 
 Dim    Feature Name                   Wasserstein     MMD             Combined Score  Rank
 ----------------------------------------------------------------------------------------------------
-20     joint_pos_LH_KFE               4.87809822      0.70640026      0.94223583      1
-16     joint_pos_RF_HFE               4.64826466      0.79696240      0.92158654      2
-17     joint_pos_RF_KFE               4.44510212      0.84987693      0.89784872      3
-15     joint_pos_RF_HAA               3.73361880      0.96940798      0.80142397      4
-19     joint_pos_LH_HFE               3.91986536      0.59014434      0.75633828      5
+20     joint_pos_LH_KFE               4.87809822      0.70640026      0.94216058      1
+16     joint_pos_RF_HFE               4.64826466      0.79696240      0.92153514      2
+17     joint_pos_RF_KFE               4.44510212      0.84987693      0.89781125      3
+15     joint_pos_RF_HAA               3.73361880      0.96940798      0.80141796      4
+19     joint_pos_LH_HFE               3.91986536      0.59014434      0.75623243      5
 18     joint_pos_LH_HAA               2.78366172      0.99221383      0.64503399      6
-21     joint_pos_RH_HAA               2.81286846      0.93297845      0.63801223      7
-12     joint_pos_LF_HAA               2.36108564      0.86205760      0.54711047      8
-8      projected_gravity_z            2.18548754      0.07264853      0.35780702      9
-23     joint_pos_RH_KFE               1.46575198      0.15744317      0.25296329      10
-6      projected_gravity_x            1.38623203      0.06758177      0.22132484      11
-11     command_ang_vel_yaw_body       0.74422407      0.33739264      0.16704700      12
-14     joint_pos_LF_KFE               0.93124386      0.08869295      0.14847991      13
-24     joint_vel_LF_HAA               0.52107018      0.13811365      0.08895163      14
-31     joint_vel_LH_HFE               0.54771488      0.08537574      0.08280882      15
-30     joint_vel_LH_HAA               0.49854826      0.12196345      0.08187058      16
-13     joint_pos_LF_HFE               0.57717105      0.05571842      0.08180720      17
-33     joint_vel_RH_HAA               0.46041756      0.09455217      0.06986823      18
-22     joint_pos_RH_HFE               0.46137305      0.05578845      0.06219585      19
-5      base_ang_vel_z_body            0.41287111      0.09353720      0.06160491      20
-27     joint_vel_RF_HAA               0.39603748      0.07691350      0.05539222      21
-34     joint_vel_RH_HFE               0.34573449      0.05207652      0.04184718      22
-28     joint_vel_RF_HFE               0.29979531      0.04682613      0.03300026      23
-25     joint_vel_LF_HFE               0.29977229      0.04187805      0.03199633      24
-1      base_lin_vel_y_body            0.27196703      0.04468251      0.02785068      25
-32     joint_vel_LH_KFE               0.26420051      0.03590236      0.02475990      26
-29     joint_vel_RF_KFE               0.24792373      0.03756665      0.02233766      27
-0      base_lin_vel_x_body            0.24206328      0.03461253      0.02074739      28
-10     command_lin_vel_y_body         0.22738916      0.03222995      0.01777889      29
-26     joint_vel_LF_KFE               0.22004434      0.02577411      0.01522933      30
-4      base_ang_vel_y_body            0.22478367      0.00435214      0.01170308      31
-9      command_lin_vel_x_body         0.17635326      0.02009501      0.00667678      32
-7      projected_gravity_y            0.17082979      0.02216674      0.00615936      33
-3      base_ang_vel_x_body            0.19347333      0.00262608      0.00604775      34
-35     joint_vel_RH_KFE               0.17093120      0.01170036      0.00406125      35
-2      base_lin_vel_z_body            0.15778929      0.00391345      0.00026018      36
+21     joint_pos_RH_HAA               2.81286846      0.93297845      0.63799664      7
+12     joint_pos_LF_HAA               2.36108564      0.86205760      0.54707621      8
+8      projected_gravity_z            2.18548754      0.07264853      0.35756493      9
+23     joint_pos_RH_KFE               1.46575198      0.15744317      0.25274353      10
+6      projected_gravity_x            1.38623203      0.06758177      0.22108141      11
+11     command_ang_vel_yaw_body       0.74422407      0.33739264      0.16687461      12
+5      base_ang_vel_z_body            0.71148050      0.32598305      0.15901628      13
+14     joint_pos_LF_KFE               0.93124386      0.08869295      0.14824204      14
+4      base_ang_vel_y_body            0.55445574      0.17152585      0.10114652      15
+24     joint_vel_LF_HAA               0.52107018      0.13811365      0.08872678      16
+31     joint_vel_LH_HFE               0.54771488      0.08537574      0.08257009      17
+30     joint_vel_LH_HAA               0.49854826      0.12196345      0.08164148      18
+13     joint_pos_LF_HFE               0.57717105      0.05571842      0.08156065      19
+3      base_ang_vel_x_body            0.48728972      0.11022364      0.07735761      20
+33     joint_vel_RH_HAA               0.46041756      0.09455217      0.06963191      21
+22     joint_pos_RH_HFE               0.46137305      0.05578845      0.06194933      22
+27     joint_vel_RF_HAA               0.39603748      0.07691350      0.05515125      23
+34     joint_vel_RH_HFE               0.34573449      0.05207652      0.04159968      24
+28     joint_vel_RF_HFE               0.29979531      0.04682613      0.03275138      25
+25     joint_vel_LF_HFE               0.29977229      0.04187805      0.03174615      26
+1      base_lin_vel_y_body            0.27196703      0.04468251      0.02760123      27
+32     joint_vel_LH_KFE               0.26420051      0.03590236      0.02450814      28
+29     joint_vel_RF_KFE               0.24792373      0.03756665      0.02208634      29
+0      base_lin_vel_x_body            0.24206328      0.03461253      0.02049529      30
+10     command_lin_vel_y_body         0.22738916      0.03222995      0.01752616      31
+26     joint_vel_LF_KFE               0.22004434      0.02577411      0.01497490      32
+9      command_lin_vel_x_body         0.17635326      0.02009501      0.00642085      33
+7      projected_gravity_y            0.17082979      0.02216674      0.00590398      34
+35     joint_vel_RH_KFE               0.17093120      0.01170036      0.00380311      35
+2      base_lin_vel_z_body            0.15778929      0.00391345      0.00000000      36
 
 Top 5 most problematic dimensions (highest shift):
   1. Dim 20 (joint_pos_LH_KFE): Wasserstein=4.878098, MMD=0.706400
@@ -154,25 +152,25 @@ ACTIONS - Per-Dimension Distribution Shift Analysis
 
 Dim    Feature Name                   Wasserstein     MMD             Combined Score  Rank
 ----------------------------------------------------------------------------------------------------
-11     action_RH_KFE                  2.67748877      1.37782262      0.99999999      1
-2      action_LF_KFE                  2.66328072      1.37246196      0.99275282      2
-10     action_RH_HFE                  2.56135824      1.33326669      0.94062393      3
-1      action_LF_HFE                  2.52771556      1.33088881      0.92542587      4
-8      action_LH_KFE                  1.60592518      0.83707312      0.42746615      5
-5      action_RF_KFE                  1.56051884      0.80318430      0.40111793      6
-4      action_RF_HFE                  0.91621690      0.40921428      0.04377551      7
-7      action_LH_HFE                  0.90786713      0.37456274      0.03352425      8
-0      action_LF_HAA                  0.87096956      0.36237206      0.01503294      9
-6      action_LH_HAA                  0.85747104      0.38389512      0.01321067      10
-9      action_RH_HAA                  0.85227251      0.34470634      0.00347752      11
-3      action_RF_HAA                  0.85416067      0.32642506      0.00082759      12
+7      action_LH_HFE                  1.26350100      0.72414347      0.99999998      1
+4      action_RF_HFE                  1.26148409      0.69377783      0.98080640      2
+1      action_LF_HFE                  1.12493046      0.58335098      0.65962609      3
+10     action_RH_HFE                  1.11259061      0.57533893      0.63159127      4
+8      action_LH_KFE                  0.93616699      0.40830437      0.20438203      5
+5      action_RF_KFE                  0.90115079      0.38242751      0.12324920      6
+2      action_LF_KFE                  0.89516922      0.36006574      0.10036768      7
+11     action_RH_KFE                  0.87711979      0.36754297      0.06901456      8
+0      action_LF_HAA                  0.87096956      0.36237206      0.05444967      9
+6      action_LH_HAA                  0.85747104      0.38389512      0.03901305      10
+9      action_RH_HAA                  0.85227251      0.34470634      0.00919308      11
+3      action_RF_HAA                  0.85416067      0.32642506      0.00367321      12
 
 Top 5 most problematic dimensions (highest shift):
-  1. Dim 11 (action_RH_KFE): Wasserstein=2.677489, MMD=1.377823
-  2. Dim 2 (action_LF_KFE): Wasserstein=2.663281, MMD=1.372462
-  3. Dim 10 (action_RH_HFE): Wasserstein=2.561358, MMD=1.333267
-  4. Dim 1 (action_LF_HFE): Wasserstein=2.527716, MMD=1.330889
-  5. Dim 8 (action_LH_KFE): Wasserstein=1.605925, MMD=0.837073
+  1. Dim 7 (action_LH_HFE): Wasserstein=1.263501, MMD=0.724143
+  2. Dim 4 (action_RF_HFE): Wasserstein=1.261484, MMD=0.693778
+  3. Dim 1 (action_LF_HFE): Wasserstein=1.124930, MMD=0.583351
+  4. Dim 10 (action_RH_HFE): Wasserstein=1.112591, MMD=0.575339
+  5. Dim 8 (action_LH_KFE): Wasserstein=0.936167, MMD=0.408304
 
 
 

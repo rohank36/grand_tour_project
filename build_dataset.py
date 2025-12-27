@@ -78,11 +78,11 @@ def build_offline_dataset(data, cfg=DatasetConfig(), episode_len_s=20, hz=50):
     base_lin_vel = quat_rotate_inverse(base_quat, root_states[:, 7:10])  # (T, 3) - now in body frame
     base_ang_vel = quat_rotate_inverse(base_quat, root_states[:, 10:13])  # (T, 3) - now in body frame
     projected_gravity = quat_rotate_inverse(base_quat, gravity_vec)  # (T, 3)
-    #joint_pos = est["joint_positions"]       # (T, 12) 
+    joint_pos = est["joint_positions"]       # (T, 12) 
 
     #Testing
-    act_keys_pos = [f"{i:02d}_state_joint_position" for i in range(12)]
-    joint_pos = np.stack([act[k] for k in act_keys_pos], axis=-1)  # (T, 12)
+    #act_keys_pos = [f"{i:02d}_state_joint_position" for i in range(12)]
+    #joint_pos = np.stack([act[k] for k in act_keys_pos], axis=-1)  # (T, 12)
 
     joint_vel = est["joint_velocities"]      # (T, 12)
     cmd_lin = cmd["linear"]                  # (T, 3)
