@@ -17,8 +17,7 @@ This project implements **offline learning algorithms** for training quadruped l
 
 ### Key Features
 
-- 🤖 **Multiple Offline RL Algorithms**: Vanilla BC, IQL, CQL, EDAC
-- 🎯 **Diffusion Policy Support**: Transformer-based diffusion policies for locomotion
+- 🤖 **Multiple Offline Learning Algorithms**: DiffuseLoco, Vanilla BC, IQL, CQL, EDAC
 - 🔄 **End-to-end Pipeline**: From raw sensor data to trained policies
 - 📊 **Isaac Gym Integration**: Online evaluation in high-fidelity simulation
 - 📈 **Weights & Biases Logging**: Comprehensive experiment tracking
@@ -97,7 +96,10 @@ This project implements **offline learning algorithms** for training quadruped l
 
 5. **Install legged_gym (ANYmal D support)**
    ```bash
-   pip install -e git+https://github.com/modanesh/legged_gym_anymal_d.git#egg=legged_gym
+   cd project
+   git clone https://github.com/modanesh/legged_gym_anymal_d.git . 
+   cd legged_gym_anymal_d
+   pip install -e .
    ```
 
 6. **Configure Hugging Face token**
@@ -142,7 +144,7 @@ Note that if the aligned_data.zarr has already been created, you can comment out
 - `terminals` — Episode boundaries
 - `next_observations` — Next state
 
-### Observation Space (36 dimensions)
+### Observation Space (48 dimensions)
 
 | Index | Description | Scale |
 |-------|-------------|-------|
@@ -152,7 +154,7 @@ Note that if the aligned_data.zarr has already been created, you can comment out
 | 9-11 | Commands [vx, vy, ω_yaw] | × [2.0, 2.0, 0.25] |
 | 12-23 | Joint positions (offset from default) | × 1.0 |
 | 24-35 | Joint velocities | × 0.05 |
-| 36-47 | Prev Actions | | 
+| 36-47 | Prev Actions | — | 
 
 ### Action Space (12 dimensions)
 
@@ -182,7 +184,7 @@ The configuration for the rest of the learning algorithms are in the respective 
 
 Modifying these configs allows you to choose which dataset to use, max training steps, learning rate etc.
 
-Note that for DiffuseLoco, depending on how many observation dimensions there are (36 with no prev actions vs 48 with), the correct observation dimension should be put in the config file `anymal_diffusion_policy.yaml`
+Note that for DiffuseLoco, depending on how many observation dimensions there are (36 with no prev actions vs 48 with), the correct observation dimension number should be put in the config file `anymal_diffusion_policy.yaml`
 
 ---
 
@@ -271,7 +273,6 @@ action_isaac = (action_gt - default_dof_pos) / action_scale
 # Isaac Gym → Grand Tour  
 action_gt = action_isaac * action_scale + default_dof_pos
 ```
----
 
 ---
 
@@ -285,7 +286,4 @@ action_gt = action_isaac * action_scale + default_dof_pos
 
 ---
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
