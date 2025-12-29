@@ -143,7 +143,7 @@ class OnlineEval:
         env_cfg = self.env_cfg
 
         obs = env.get_observations()
-        #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+        obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
         
         logger = Logger(env.dt) # note env.dt = 0.0199999 
         robot_index = 0  # which robot is used for logging
@@ -182,7 +182,7 @@ class OnlineEval:
         for i in range(num_repetitions * int(max_episode_length)+2):
         #for i in tqdm(range(num_repetitions * int(max_episode_length)+2),desc="Online IG Eval"):
 
-            obs = unscale_observations(obs, device=device)
+            #obs = unscale_observations(obs, device=device)
 
             # Normalize observations before feeding to actor
             if self.normalize:
@@ -206,15 +206,15 @@ class OnlineEval:
             # Convert actions from absolute positions (GrandTour format) to offsets (Isaac Gym format)
             # Policy outputs absolute positions, but Isaac Gym expects normalized offsets
             actions_np = actions.detach().cpu().numpy()
-            actions_isaac = make_actions_compatible(actions_np)
-            actions_isaac = torch.tensor(actions_isaac, device=actions.device, dtype=actions.dtype)
+            #actions_isaac = make_actions_compatible(actions_np)
+            #actions_isaac = torch.tensor(actions_isaac, device=actions.device, dtype=actions.dtype)
             
             # Store actions for per-dimension analysis (from policy output, before conversion)
             with torch.no_grad():
                 actions_all_list.append(actions_np)
             
-            obs, _, rews, dones, infos = env.step(actions_isaac.detach())
-            #obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+            obs, _, rews, dones, infos = env.step(actions.detach())
+            obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
 
             """
             #################TESTING #########################
