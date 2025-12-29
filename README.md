@@ -1,8 +1,8 @@
-# Grand Tour Offline RL
+# COMP 400 Project
 
 <div align="center">
 
-**Offline Reinforcement Learning for Quadruped Locomotion using the Grand Tour Dataset**
+**Offline Learning for Quadruped Locomotion using the Grand Tour Dataset**
 
 ![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.4+-red.svg)
