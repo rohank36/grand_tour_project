@@ -19,12 +19,15 @@ from isaac_compatibility import make_actions_compatible
 
 class OnlineEval:
 
-    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=False):
+    def __init__(self, task_name, seed, dataset_path="offline_dataset_pp.hdf5", normalize=False, include_prev_actions=False):
         args = get_args()
         args.seed = seed
         args.task = task_name
         args.headless = True # Set headless for faster eval
         env_cfg, train_cfg = task_registry.get_cfgs(name=task_name)
+        
+        # Store whether to include prev_actions in observations (48 dims if True, 36 dims if False)
+        self.include_prev_actions = include_prev_actions
 
         env_cfg.terrain.num_rows = 5
         env_cfg.terrain.num_cols = 5
@@ -143,7 +146,8 @@ class OnlineEval:
         env_cfg = self.env_cfg
 
         obs = env.get_observations()
-        obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+        if not self.include_prev_actions:
+            obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
         
         logger = Logger(env.dt) # note env.dt = 0.0199999 
         robot_index = 0  # which robot is used for logging
@@ -214,7 +218,8 @@ class OnlineEval:
                 actions_all_list.append(actions_np)
             
             obs, _, rews, dones, infos = env.step(actions.detach())
-            obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
+            if not self.include_prev_actions:
+                obs = obs[:, :-12]  # Remove last 12 dimensions (prev_actions)
 
             """
             #################TESTING #########################

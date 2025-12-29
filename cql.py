@@ -69,6 +69,7 @@ class TrainConfig:
     reward_bias: float = 0.0  # Reward bias for normalization
     policy_log_std_multiplier: float = 1.0  # Stochastic policy std multiplier
     normalize_online_eval_obs: bool = False # Normalize online eval obs
+    include_prev_actions: bool = False  # Include prev_actions in obs (48 dims if True, 36 dims if False)
     dataset_filepath: str = "offline_dataset_pp.hdf5"
     
     project: str = "grand_tour"  # wandb project name
@@ -1184,7 +1185,7 @@ def train(config: TrainConfig):
     },step=0)
     # -------------------------------------------
 
-    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs)
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs,include_prev_actions=config.include_prev_actions)
     start_time = time.time()
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)), desc="Training CQL"):
