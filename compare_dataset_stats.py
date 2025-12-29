@@ -260,7 +260,7 @@ print_act_stats(dataset_isaac_gym, dataset_grand_tour)
 acts_plots_dir = "act_plots"
 #plot_acts(acts_plots_dir, dataset_isaac_gym, dataset_grand_tour, n1="Isaac Gym", n2="Grand Tour")
 
-obs_plots_dir = "obs_plots2"
+obs_plots_dir = "obs_plots"
 #plot_obs(obs_plots_dir,dataset_isaac_gym,dataset_grand_tour,n1="Isaac Gym", n2="Grand Tour")
 
 rews_plot_dir = "rew_plots"

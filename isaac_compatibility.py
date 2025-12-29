@@ -2,7 +2,8 @@ import numpy as np
 
 """ To make the GrandTour dataset data compatible with Isaac Gym """
 
-default_joint_angles = { # = target angles [rad] when action = 0.0
+# Isaac Gym default joint angles (target angles [rad] when action = 0.0)
+isaac_default_joint_angles = {
     "LF_HAA": 0.0,
     "LH_HAA": 0.0,
     "RF_HAA": -0.0,
@@ -18,6 +19,30 @@ default_joint_angles = { # = target angles [rad] when action = 0.0
     "RF_KFE": -0.8,
     "RH_KFE": 0.8,
 }
+
+# Grand Tour default joint angles (computed from mean of real robot data)
+grand_tour_default_joint_angles = {
+    "LF_HAA": -0.3818,
+    "LF_HFE": 0.8445,
+    "LF_KFE": -1.3450,
+    "RF_HAA": 0.4191,
+    "RF_HFE": 0.7747,
+    "RF_KFE": -1.3316,
+    "LH_HAA": -0.3890,
+    "LH_HFE": -0.5935,
+    "LH_KFE": 1.2910,
+    "RH_HAA": 0.4031,
+    "RH_HFE": -0.7371,
+    "RH_KFE": 1.3671,
+}
+
+# Select which defaults to use for observation centering
+# Set to 'grand_tour' to center observations using Grand Tour defaults
+# Set to 'isaac' to use Isaac Gym defaults (original behavior)
+OBS_CENTERING_MODE = 'grand_tour'
+
+# Keep Isaac defaults for backward compatibility (used by make_actions_compatible)
+default_joint_angles = isaac_default_joint_angles
 
 NUM_DOF = 12
 
@@ -65,13 +90,33 @@ NOISE_SCALES = {
     'dof_vel': 1.5,
 }
 
-def build_default_dof_pos() -> np.ndarray:
+def build_default_dof_pos(use_grand_tour=False) -> np.ndarray:
+    """
+    Build default DOF position array.
+    
+    Args:
+        use_grand_tour: If True, use Grand Tour defaults. If False, use Isaac Gym defaults.
+    
+    Returns:
+        np.ndarray of shape (12,) with default joint angles
+    """
+    angles_dict = grand_tour_default_joint_angles if use_grand_tour else isaac_default_joint_angles
     default_dof_pos = np.zeros(NUM_DOF, dtype=np.float32)
     for i in range(len(DOF_NAMES)):
         name = DOF_NAMES[i]  # Gets name in URDF order
-        angle = default_joint_angles[name]  # Dictionary lookup by name
+        angle = angles_dict[name]  # Dictionary lookup by name
         default_dof_pos[i] = angle
     return default_dof_pos
+
+
+def build_isaac_default_dof_pos() -> np.ndarray:
+    """Build Isaac Gym default DOF positions (for action compatibility)."""
+    return build_default_dof_pos(use_grand_tour=False)
+
+
+def build_grand_tour_default_dof_pos() -> np.ndarray:
+    """Build Grand Tour default DOF positions (for observation centering)."""
+    return build_default_dof_pos(use_grand_tour=True)
 
 def scale_joint_vel(joint_vel):
     return joint_vel * DOF_VEL_SCALE
@@ -80,7 +125,13 @@ def scale_commands(commands_xy_yaw):
     return commands_xy_yaw * COMMANDS_SCALE
 
 def make_actions_compatible(absolute_positions):
-    default_dof_pos = build_default_dof_pos()
+    """
+    Convert absolute joint positions to action space.
+    
+    Uses Grand Tour defaults so actions are centered around 0 for GT data.
+    At inference, Isaac Gym must also use Grand Tour defaults.
+    """
+    default_dof_pos = build_grand_tour_default_dof_pos()
     return (absolute_positions - default_dof_pos) / action_scale
 
 def scale_lin_vel(lin_vel):
@@ -90,7 +141,14 @@ def scale_ang_vel(ang_vel):
     return ang_vel * ANG_VEL_SCALE
 
 def scale_joint_pos(joint_pos):
-    default_dof_pos = build_default_dof_pos()
+    """
+    Scale joint positions by centering around defaults.
+    
+    Uses Grand Tour defaults if OBS_CENTERING_MODE == 'grand_tour',
+    otherwise uses Isaac Gym defaults.
+    """
+    use_grand_tour = (OBS_CENTERING_MODE == 'grand_tour')
+    default_dof_pos = build_default_dof_pos(use_grand_tour=use_grand_tour)
     return (joint_pos - default_dof_pos) * obs_scale
 
 def get_noise_scale_vec(obs_dim=48):

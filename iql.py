@@ -85,6 +85,7 @@ class TrainConfig:
     dataset_filepath: str = "expert_dataset.hdf5"
     eval_seed: int = 27
     normalize_online_eval_obs: bool = False
+    include_prev_actions: bool = False  # Include prev_actions in obs (48 dims if True, 36 dims if False)
 
     def __post_init__(self):
         self.name = f"{self.name}-{str(uuid.uuid4())[:8]}"
@@ -660,7 +661,7 @@ def train(config: TrainConfig):
         actor = trainer.actor
 
     wandb_init(asdict(config))
-    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs)
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,normalize=config.normalize_online_eval_obs,include_prev_actions=config.include_prev_actions)
     evaluations = []
     #for t in range(int(config.max_timesteps)):
     for t in tqdm(range(int(config.max_timesteps)),desc="Training IQL"):

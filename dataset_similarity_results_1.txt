@@ -1,0 +1,531 @@
+Joint Pos - act 
+Actions - act command position 
+
+================================================================================
+Dataset Similarity Comparison Results
+Generated: 2025-12-26 18:12:01
+================================================================================
+
+Target dataset: expert_dataset.hdf5
+Target observations shape: (852249, 36)
+Target actions shape: (852249, 12)
+Aligned data path: aligned_data.zarr
+Total configurations to test: 64
+
+Note: All metrics computed on normalized data (normalized using target dataset statistics)
+================================================================================
+
+Config   1:
+  Obs Wasserstein = 5.98582524, Obs MMD = 0.00036396
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config   2:
+  Obs Wasserstein = 5.98582524, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config   3:
+  Obs Wasserstein = 2.02164818, Obs MMD = 0.00045386
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config   4:
+  Obs Wasserstein = 2.02164818, Obs MMD = 0.00045386
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config   5:
+  Obs Wasserstein = 5.21166673, Obs MMD = 0.00036396
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config   6:
+  Obs Wasserstein = 5.21166673, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config   7:
+  Obs Wasserstein = 1.24748967, Obs MMD = 0.00045386
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config   8:
+  Obs Wasserstein = 1.24748967, Obs MMD = 0.00045386
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config   9:
+  Obs Wasserstein = 5.97297778, Obs MMD = 0.00036886
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  10:
+  Obs Wasserstein = 5.97297778, Obs MMD = 0.00036886
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  11:
+  Obs Wasserstein = 2.00880072, Obs MMD = 0.00045509
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  12:
+  Obs Wasserstein = 2.00880072, Obs MMD = 0.00045509
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  13:
+  Obs Wasserstein = 5.19881927, Obs MMD = 0.00036886
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  14:
+  Obs Wasserstein = 5.19881927, Obs MMD = 0.00036886
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  15:
+  Obs Wasserstein = 1.23464222, Obs MMD = 0.00045509
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  16:
+  Obs Wasserstein = 1.23464222, Obs MMD = 0.00045509
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  17:
+  Obs Wasserstein = 6.01143906, Obs MMD = 0.00037369
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  18:
+  Obs Wasserstein = 6.01143906, Obs MMD = 0.00037369
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  19:
+  Obs Wasserstein = 2.04726201, Obs MMD = 0.00050746
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  20:
+  Obs Wasserstein = 2.04726201, Obs MMD = 0.00050746
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  21:
+  Obs Wasserstein = 5.23728056, Obs MMD = 0.00037369
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  22:
+  Obs Wasserstein = 5.23728056, Obs MMD = 0.00037369
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  23:
+  Obs Wasserstein = 1.27310350, Obs MMD = 0.00050746
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  24:
+  Obs Wasserstein = 1.27310350, Obs MMD = 0.00050746
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  25:
+  Obs Wasserstein = 5.99859161, Obs MMD = 0.00037874
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  26:
+  Obs Wasserstein = 5.99859161, Obs MMD = 0.00037874
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  27:
+  Obs Wasserstein = 2.03441455, Obs MMD = 0.00050323
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  28:
+  Obs Wasserstein = 2.03441455, Obs MMD = 0.00050323
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  29:
+  Obs Wasserstein = 5.22443310, Obs MMD = 0.00037874
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  30:
+  Obs Wasserstein = 5.22443310, Obs MMD = 0.00037874
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  31:
+  Obs Wasserstein = 1.26025605, Obs MMD = 0.00050323
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  32:
+  Obs Wasserstein = 1.26025605, Obs MMD = 0.00050323
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  33:
+  Obs Wasserstein = 5.96463017, Obs MMD = 0.00036361
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  34:
+  Obs Wasserstein = 5.96463017, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  35:
+  Obs Wasserstein = 2.00045312, Obs MMD = 0.00044475
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  36:
+  Obs Wasserstein = 2.00045312, Obs MMD = 0.00044475
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  37:
+  Obs Wasserstein = 5.19047167, Obs MMD = 0.00036361
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  38:
+  Obs Wasserstein = 5.19047167, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  39:
+  Obs Wasserstein = 1.22629461, Obs MMD = 0.00044475
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  40:
+  Obs Wasserstein = 1.22629461, Obs MMD = 0.00044475
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  41:
+  Obs Wasserstein = 5.95178272, Obs MMD = 0.00036850
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  42:
+  Obs Wasserstein = 5.95178272, Obs MMD = 0.00036850
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  43:
+  Obs Wasserstein = 1.98760566, Obs MMD = 0.00044976
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  44:
+  Obs Wasserstein = 1.98760566, Obs MMD = 0.00044976
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  45:
+  Obs Wasserstein = 5.17762421, Obs MMD = 0.00036850
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  46:
+  Obs Wasserstein = 5.17762421, Obs MMD = 0.00036850
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  47:
+  Obs Wasserstein = 1.21344716, Obs MMD = 0.00044976
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  48:
+  Obs Wasserstein = 1.21344716, Obs MMD = 0.00044976
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  49:
+  Obs Wasserstein = 5.99024400, Obs MMD = 0.00037328
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  50:
+  Obs Wasserstein = 5.99024400, Obs MMD = 0.00037328
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  51:
+  Obs Wasserstein = 2.02606695, Obs MMD = 0.00048261
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  52:
+  Obs Wasserstein = 2.02606695, Obs MMD = 0.00048261
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  53:
+  Obs Wasserstein = 5.21608550, Obs MMD = 0.00037328
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  54:
+  Obs Wasserstein = 5.21608550, Obs MMD = 0.00037328
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  55:
+  Obs Wasserstein = 1.25190844, Obs MMD = 0.00048261
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  56:
+  Obs Wasserstein = 1.25190844, Obs MMD = 0.00048261
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+Config  57:
+  Obs Wasserstein = 5.97739655, Obs MMD = 0.00037833
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Config  58:
+  Obs Wasserstein = 5.97739655, Obs MMD = 0.00037833
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Config  59:
+  Obs Wasserstein = 2.01321949, Obs MMD = 0.00048923
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=False
+
+Config  60:
+  Obs Wasserstein = 2.01321949, Obs MMD = 0.00048923
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=False, scale_joint_vel=True, scale_actions=True
+
+Config  61:
+  Obs Wasserstein = 5.20323804, Obs MMD = 0.00037833
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Config  62:
+  Obs Wasserstein = 5.20323804, Obs MMD = 0.00037833
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Config  63:
+  Obs Wasserstein = 1.23906098, Obs MMD = 0.00048923
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=False
+
+Config  64:
+  Obs Wasserstein = 1.23906098, Obs MMD = 0.00048923
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=True, scale_joint_pos=True, scale_joint_vel=True, scale_actions=True
+
+
+================================================================================
+TOP 10 RANKED CONFIGURATIONS - OBSERVATION SIMILARITY (Lowest MMD = Most Similar)
+================================================================================
+
+Rank  1:
+  Obs Wasserstein = 5.96463017, Obs MMD = 0.00036361
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Rank  2:
+  Obs Wasserstein = 5.96463017, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  3:
+  Obs Wasserstein = 5.19047167, Obs MMD = 0.00036361
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Rank  4:
+  Obs Wasserstein = 5.19047167, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  5:
+  Obs Wasserstein = 5.21166673, Obs MMD = 0.00036396
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Rank  6:
+  Obs Wasserstein = 5.21166673, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  7:
+  Obs Wasserstein = 5.98582524, Obs MMD = 0.00036396
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=False
+
+Rank  8:
+  Obs Wasserstein = 5.98582524, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  9:
+  Obs Wasserstein = 5.17762421, Obs MMD = 0.00036850
+  Act Wasserstein = 1.35145537, Act MMD = 0.07931506
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=False
+
+Rank 10:
+  Obs Wasserstein = 5.17762421, Obs MMD = 0.00036850
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+
+================================================================================
+TOP 10 RANKED CONFIGURATIONS - TOTAL SIMILARITY (Obs MMD + Act MMD, Lowest = Most Similar)
+================================================================================
+
+Rank  1 (Total = 0.02494709):
+  Obs Wasserstein = 5.96463017, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  2 (Total = 0.02494709):
+  Obs Wasserstein = 5.19047167, Obs MMD = 0.00036361
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  3 (Total = 0.02494744):
+  Obs Wasserstein = 5.98582524, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  4 (Total = 0.02494744):
+  Obs Wasserstein = 5.21166673, Obs MMD = 0.00036396
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  5 (Total = 0.02495198):
+  Obs Wasserstein = 5.95178272, Obs MMD = 0.00036850
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  6 (Total = 0.02495198):
+  Obs Wasserstein = 5.17762421, Obs MMD = 0.00036850
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  7 (Total = 0.02495234):
+  Obs Wasserstein = 5.97297778, Obs MMD = 0.00036886
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank  8 (Total = 0.02495234):
+  Obs Wasserstein = 5.19881927, Obs MMD = 0.00036886
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=False, scale_ang_vel=False, scale_commands=True, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+
+Rank  9 (Total = 0.02495676):
+  Obs Wasserstein = 5.99024400, Obs MMD = 0.00037328
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=False, scale_joint_vel=False, scale_actions=True
+
+Rank 10 (Total = 0.02495676):
+  Obs Wasserstein = 5.21608550, Obs MMD = 0.00037328
+  Act Wasserstein = 1.38882036, Act MMD = 0.02458348
+  Obs shape = (852249, 36), Act shape = (852249, 12)
+  scale_lin_vel=True, scale_ang_vel=True, scale_commands=False, scale_joint_pos=True, scale_joint_vel=False, scale_actions=True
+

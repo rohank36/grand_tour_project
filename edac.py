@@ -77,6 +77,7 @@ class TrainConfig:
     # training device
     device: str = "cuda"
     dataset_filepath: str = "expert_dataset.hdf5"
+    include_prev_actions: bool = False  # Include prev_actions in obs (48 dims if True, 36 dims if False)
 
     def __post_init__(self):
         self.name = f"{self.name}-{str(uuid.uuid4())[:8]}"
@@ -643,7 +644,7 @@ def train(config: TrainConfig):
             pyrallis.dump(config, f)
 
     total_updates = 0.0
-    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed)
+    online_eval = OnlineEval(task_name="anymal_d_flat",seed=config.eval_seed,include_prev_actions=config.include_prev_actions)
     for epoch in trange(config.num_epochs, desc="Training"):
         # training
         for _ in trange(config.num_updates_on_epoch, desc="Epoch", leave=False):

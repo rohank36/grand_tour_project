@@ -1,0 +1,75 @@
+================================================================================
+OBSERVATIONS - Per-Dimension Distribution Shift Analysis
+================================================================================
+
+Dim    Feature Name                   Wasserstein     MMD             Combined Score  Rank
+----------------------------------------------------------------------------------------------------
+19     joint_pos_LH_HFE               2.56270415      0.41670617      0.96953904      1
+13     joint_pos_LF_HFE               2.37760397      0.48948840      0.93776469      2
+16     joint_pos_RF_HFE               2.28569279      0.49110363      0.90785158      3
+14     joint_pos_LF_KFE               2.04038028      0.46433973      0.81528977      4
+22     joint_pos_RH_HFE               2.08466385      0.33879327      0.77861763      5
+23     joint_pos_RH_KFE               1.90000874      0.40334138      0.74362000      6
+20     joint_pos_LH_KFE               2.06393384      0.26354314      0.74091168      7
+8      projected_gravity_z            2.18548754      0.07264853      0.70318777      8
+17     joint_pos_RF_KFE               1.76498317      0.31653484      0.66316178      9
+6      projected_gravity_x            1.38623203      0.06758177      0.43523923      10
+11     command_ang_vel_yaw_body       0.74422407      0.33739264      0.33214404      11
+24     joint_vel_LF_HAA               0.52107018      0.13811365      0.17631956      12
+31     joint_vel_LH_HFE               0.54771488      0.08537574      0.16359021      13
+30     joint_vel_LH_HAA               0.49854826      0.12196345      0.16221513      14
+33     joint_vel_RH_HAA               0.46041756      0.09455217      0.13830773      15
+5      base_ang_vel_z_body            0.41287111      0.09353720      0.12207574      16
+27     joint_vel_RF_HAA               0.39603748      0.07691350      0.10966966      17
+12     joint_pos_LF_HAA               0.38077059      0.06734938      0.10067521      18
+34     joint_vel_RH_HFE               0.34573449      0.05207652      0.08276713      19
+18     joint_pos_LH_HAA               0.33544560      0.05866262      0.08204109      20
+28     joint_vel_RF_HFE               0.29979531      0.04682613      0.06533567      21
+25     joint_vel_LF_HFE               0.29977229      0.04187805      0.06330209      22
+21     joint_pos_RH_HAA               0.28936254      0.03163434      0.05564513      23
+1      base_lin_vel_y_body            0.27196703      0.04468251      0.05520086      24
+15     joint_pos_RF_HAA               0.29483740      0.01637503      0.05121865      25
+32     joint_vel_LH_KFE               0.26420051      0.03590236      0.04902240      26
+29     joint_vel_RF_KFE               0.24792373      0.03756665      0.04428932      27
+0      base_lin_vel_x_body            0.24206328      0.03461253      0.04113031      28
+10     command_lin_vel_y_body         0.22738916      0.03222995      0.03527341      29
+26     joint_vel_LF_KFE               0.22004434      0.02577411      0.03018690      30
+4      base_ang_vel_y_body            0.22478367      0.00435214      0.02299253      31
+9      command_lin_vel_x_body         0.17635326      0.02009501      0.01332774      32
+7      projected_gravity_y            0.17082979      0.02216674      0.01233859      33
+3      base_ang_vel_x_body            0.19347333      0.00262608      0.01187037      34
+35     joint_vel_RH_KFE               0.17093120      0.01170036      0.00808701      35
+2      base_lin_vel_z_body            0.15778929      0.00391345      0.00052710      36
+
+Top 5 most problematic dimensions (highest shift):
+  1. Dim 19 (joint_pos_LH_HFE): Wasserstein=2.562704, MMD=0.416706
+  2. Dim 13 (joint_pos_LF_HFE): Wasserstein=2.377604, MMD=0.489488
+  3. Dim 16 (joint_pos_RF_HFE): Wasserstein=2.285693, MMD=0.491104
+  4. Dim 14 (joint_pos_LF_KFE): Wasserstein=2.040380, MMD=0.464340
+  5. Dim 22 (joint_pos_RH_HFE): Wasserstein=2.084664, MMD=0.338793
+
+================================================================================
+ACTIONS - Per-Dimension Distribution Shift Analysis
+================================================================================
+
+Dim    Feature Name                   Wasserstein     MMD             Combined Score  Rank
+----------------------------------------------------------------------------------------------------
+7      action_LH_HFE                  1.83328844      0.44250901      0.99999999      1
+2      action_LF_KFE                  1.60213305      0.41705255      0.86649732      2
+11     action_RH_KFE                  1.45302173      0.37532141      0.76761438      3
+4      action_RF_HFE                  1.45366399      0.33209263      0.74614833      4
+8      action_LH_KFE                  0.82922278      0.19410158      0.35059443      5
+5      action_RF_KFE                  0.79414158      0.18177324      0.32606438      6
+0      action_LF_HAA                  0.73467316      0.18678548      0.29754934      7
+1      action_LF_HFE                  0.73150454      0.10796571      0.25614458      8
+9      action_RH_HAA                  0.55359305      0.14639587      0.18265508      9
+10     action_RH_HFE                  0.62420412      0.04593873      0.16885147      10
+6      action_LH_HAA                  0.42362020      0.13088425      0.10698567      11
+3      action_RF_HAA                  0.30073719      0.06337245      0.00879225      12
+
+Top 5 most problematic dimensions (highest shift):
+  1. Dim 7 (action_LH_HFE): Wasserstein=1.833288, MMD=0.442509
+  2. Dim 2 (action_LF_KFE): Wasserstein=1.602133, MMD=0.417053
+  3. Dim 11 (action_RH_KFE): Wasserstein=1.453022, MMD=0.375321
+  4. Dim 4 (action_RF_HFE): Wasserstein=1.453664, MMD=0.332093
+  5. Dim 8 (action_LH_KFE): Wasserstein=0.829223, MMD=0.194102

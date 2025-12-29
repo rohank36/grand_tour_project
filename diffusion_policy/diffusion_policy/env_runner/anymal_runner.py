@@ -42,17 +42,20 @@ class AnymalRunner(BaseLowdimRunner):
                  seed=27,
                  normalize=False,
                  dataset_path="offline_dataset.hdf5",
+                 include_prev_actions=False,
                  **kwargs):
         super().__init__(output_dir)
         self.task_name = task_name
         self.seed = seed
         self.normalize = normalize
         self.dataset_path = dataset_path
+        self.include_prev_actions = include_prev_actions
         self.online_eval = OnlineEval(
             task_name=task_name,
             seed=seed,
             normalize=normalize,
-            dataset_path=dataset_path
+            dataset_path=dataset_path,
+            include_prev_actions=include_prev_actions
         )
     
     def run(self, policy: BaseLowdimPolicy) -> Dict:

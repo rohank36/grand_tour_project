@@ -37,6 +37,7 @@ class TrainConfig:
     weight_decay: float = 1e-4  # L2 regularization
     normalize: bool = False  # Normalize states
     normalize_online_eval_obs: bool = False  # Normalize online eval obs
+    include_prev_actions: bool = False  # Include prev_actions in obs (48 dims if True, 36 dims if False)
     dataset_filepath: str = "offline_dataset_pp.hdf5"
     
     # Model architecture
@@ -264,6 +265,7 @@ def train(config: TrainConfig):
         task_name="anymal_d_flat",
         seed=config.eval_seed,
         normalize=config.normalize_online_eval_obs,
+        include_prev_actions=config.include_prev_actions,
     )
     
     start_time = time.time()
