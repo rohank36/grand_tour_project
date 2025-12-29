@@ -13,7 +13,7 @@
 
 ## Overview
 
-This project implements **offline reinforcement learning algorithms** for training quadruped locomotion policies on the [Grand Tour Dataset](https://huggingface.co/datasets/leggedrobotics/grand_tour_dataset) — a large-scale real-world dataset of ANYmal D robot trajectories. The trained policies are evaluated in the **Isaac Gym** physics simulator.
+This project implements **offline learning algorithms** for training quadruped locomotion policies on the [Grand Tour Dataset](https://huggingface.co/datasets/leggedrobotics/grand_tour_dataset) — a large-scale real-world dataset of ANYmal D robot trajectories. The trained policies are evaluated in the **Isaac Gym** physics simulator.
 
 ### Key Features
 
@@ -36,10 +36,10 @@ This project implements **offline reinforcement learning algorithms** for traini
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                        Data Pipeline                                     │
-│  ┌──────────────┐    ┌──────────────┐    ┌──────────────────────────┐   │
-│  │   download   │───▶│  align_data  │───▶│    build_dataset         │   │
-│  │    .py       │    │     .py      │    │        .py               │   │
-│  └──────────────┘    └──────────────┘    └──────────────────────────┘   │
+│  ┌──────────────┐    ┌──────────────────────────┐                      │
+│  │   download   │───▶│build_dataset_full_pipline│                      │
+│  │    .py       │    │        .py               │                      │
+│  └──────────────┘    └──────────────────────────┘                      │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
                                     ▼
@@ -48,18 +48,10 @@ This project implements **offline reinforcement learning algorithms** for traini
 │         observations, actions, rewards, terminals, next_obs              │
 └─────────────────────────────────────────────────────────────────────────┘
                                     │
-                    ┌───────────────┼───────────────┐
-                    ▼               ▼               ▼
-           ┌──────────────┐ ┌──────────────┐ ┌──────────────┐
-           │  Vanilla BC  │ │     IQL      │ │    CQL       │
-           │              │ │              │ │              │
-           └──────────────┘ └──────────────┘ └──────────────┘
-                    │               │               │
-                    └───────────────┼───────────────┘
                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    Online Evaluation (Isaac Gym)                         │
-│              eval_isaac_v2.py → ANYmal D Flat Terrain                   │
+│                    Training + Online Evaluation                          │
+│         (BC/IQL/CQL/EDAC/Diffusion) → Isaac Gym (ANYmal D Flat)         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -70,19 +62,20 @@ This project implements **offline reinforcement learning algorithms** for traini
 ### Prerequisites
 
 - Python 3.8+
-- CUDA 11.x or 12.x
 - Isaac Gym Preview 4
 - Hugging Face account (for dataset access)
 
 ### Setup
 
-1. **Clone the repository**
+1. **Create project dir and clone the repository into project dir**
    ```bash
-   git clone https://github.com/your-username/grand_tour_project.git
-   cd grand_tour_project/grand_tour_project
+   mkdir project
+   cd project
+   git clone https://github.com/your-username/grand_tour_project.git .
+   cd grand_tour_project
    ```
 
-2. **Create virtual environment**
+2. **Create virtual environment with python 3.8 and activate venv**
    ```bash
    python -m venv venv
    source venv/bin/activate  # Linux/Mac
@@ -132,23 +125,15 @@ This downloads the following sensor topics:
 - `anymal_state_actuator` — Actuator commands
 - `anymal_command_twist` — Velocity commands
 
-### 2. Align Sensor Data
-
-Align multi-sensor data to a common 50Hz timeline:
-
-```bash
-python align_data.py
-```
-
-Output: `aligned_data.zarr` containing synchronized sensor readings.
-
-### 3. Build Offline RL Dataset
+### 2. Align Sensor Data and Build Offline RL Dataset
 
 Convert aligned data to offline RL format compatible with Isaac Gym:
 
 ```bash
-python build_dataset.py
+python build_dataset_full_pipeline.py
 ```
+
+Note that if the aligned_data.zarr has already been created, you can comment out the `align_data()` call and just load the aligned data when building the dataset to save time. If it's your first time running it, make sure `align_data()` is uncommented in the file. 
 
 **Output**: `offline_dataset_pp.hdf5` with:
 - `observations` — 36D state vectors (or 48D with previous actions)
@@ -167,6 +152,7 @@ python build_dataset.py
 | 9-11 | Commands [vx, vy, ω_yaw] | × [2.0, 2.0, 0.25] |
 | 12-23 | Joint positions (offset from default) | × 1.0 |
 | 24-35 | Joint velocities | × 0.05 |
+| 36-47 | Prev Actions | | 
 
 ### Action Space (12 dimensions)
 
@@ -176,117 +162,33 @@ LF_HAA, LF_HFE, LF_KFE, RF_HAA, RF_HFE, RF_KFE,
 LH_HAA, LH_HFE, LH_KFE, RH_HAA, RH_HFE, RH_KFE
 ```
 
+To change the sensors used or which observations are built (e.g., if you want to remove prev actions or not), modify `build_offline_dataset()` in `build_dataset.py`.
+
 ---
 
 ## Training
 
-### Vanilla Behavioral Cloning (BC)
-
-Simple supervised learning to imitate expert demonstrations:
+To use a specific learning algorithm it suffices to do
 
 ```bash
-python vanilla_bc.py --dataset_filepath=offline_dataset_pp.hdf5 \
-                     --max_timesteps=200000 \
-                     --hidden_dim=512 \
-                     --n_hidden_layers=3
+python <algorithm_file.py>
+e.g.,
+python diffuseloco.py
+python cql.py
 ```
+The configuration file for the DiffuseLoco training is in `diffusion_policy/diffusion_policy/config/anymal_diffusion_policy.yaml`.
 
-**Key hyperparameters:**
-- `hidden_dim`: Network hidden layer size (default: 512)
-- `n_hidden_layers`: Number of hidden layers (default: 3)
-- `learning_rate`: Learning rate (default: 1e-3)
-- `normalize`: Normalize observations (default: False)
+The configuration for the rest of the learning algorithms are in the respective learning files.
 
-### Implicit Q-Learning (IQL)
+Modifying these configs allows you to choose which dataset to use, max training steps, learning rate etc.
 
-Offline RL with implicit Q-function learning:
-
-```bash
-python iql.py --dataset_filepath=offline_dataset_pp.hdf5 \
-              --max_timesteps=500000 \
-              --beta=3.0 \
-              --iql_tau=0.7
-```
-
-**Key hyperparameters:**
-- `beta`: Inverse temperature for advantage weighting (default: 3.0)
-- `iql_tau`: Asymmetric loss coefficient (default: 0.7)
-- `discount`: Discount factor (default: 0.99)
-
-### Conservative Q-Learning (CQL)
-
-Offline RL with conservative value estimation:
-
-```bash
-python cql.py --dataset_filepath=offline_dataset_pp.hdf5 \
-              --max_timesteps=150000 \
-              --cql_alpha=5.0
-```
-
-**Key hyperparameters:**
-- `cql_alpha`: CQL regularization weight (default: 5.0)
-- `bc_steps`: Initial BC pretraining steps (default: 150000)
-- `cql_n_actions`: Number of sampled actions (default: 10)
-
-### Ensemble Diversified Actor Critic (EDAC)
-
-SAC-based offline RL with ensemble diversification:
-
-```bash
-python edac.py --dataset_filepath=offline_dataset_pp.hdf5 \
-               --num_epochs=1500 \
-               --num_critics=10 \
-               --eta=1.0
-```
-
-**Key hyperparameters:**
-- `num_critics`: Size of critic ensemble (default: 10)
-- `eta`: Ensemble diversification coefficient (default: 1.0)
-- `tau`: Target network update rate (default: 5e-3)
-
-### Diffusion Policy
-
-Train transformer-based diffusion policy:
-
-```bash
-python diffuseloco.py --config-name=anymal_diffusion_policy
-```
-
-Configuration files are in `diffusion_policy/config_files/`.
+Note that for DiffuseLoco, depending on how many observation dimensions there are (36 with no prev actions vs 48 with), the correct observation dimension should be put in the config file `anymal_diffusion_policy.yaml`
 
 ---
 
 ## Evaluation
 
-All training scripts automatically evaluate in Isaac Gym every `eval_freq` steps.
-
-### Evaluation Metrics
-
-| Metric | Description |
-|--------|-------------|
-| `isaac_reward` | Total episode reward |
-| `isaac_avg_episode_length` | Average episode length |
-| `reward_terms/tracking_lin_vel` | Linear velocity tracking reward |
-| `reward_terms/tracking_ang_vel` | Angular velocity tracking reward |
-| `reward_terms/feet_air_time` | Feet air time reward |
-| `reward_terms/action_rate` | Action smoothness penalty |
-
-### Reward Functions
-
-The reward computation follows the Isaac Gym ANYmal configuration:
-
-```python
-reward_scales = {
-    "tracking_lin_vel": 1.0,
-    "tracking_ang_vel": 0.5,
-    "lin_vel_z": -2.0,
-    "ang_vel_xy": -0.05,
-    "torques": -0.00001,
-    "dof_acc": -2.5e-7,
-    "feet_air_time": 1.0,
-    "action_rate": -0.01,
-}
-```
+All training scripts automatically evaluate in Isaac Gym every `eval_freq` steps and log the individual reward terms and the avg episode reward and length
 
 ---
 
@@ -297,7 +199,7 @@ grand_tour_project/
 ├── download.py              # Download Grand Tour dataset from HuggingFace
 ├── align_data.py            # Align multi-sensor data to 50Hz
 ├── build_dataset.py         # Build offline RL dataset (HDF5)
-├── build_dataset_full_pipeline.py  # End-to-end dataset building
+├── build_dataset_full_pipeline.py  # End-to-end dataset building (calls align_data.py and build_dataset.py) 
 │
 ├── vanilla_bc.py            # Vanilla Behavioral Cloning
 ├── iql.py                   # Implicit Q-Learning
@@ -319,7 +221,7 @@ grand_tour_project/
 │   └── workspace/           # Training workspaces
 │
 ├── diffuseloco.py           # Diffusion policy training entry point
-├── compare_dataset_*.py     # Dataset analysis scripts
+├── compare_dataset_*.py     # Dataset analysis scripts to compare datasets
 │
 ├── requirements.txt         # Python dependencies
 └── README.md               # This file
@@ -329,19 +231,6 @@ grand_tour_project/
 
 ## Configuration
 
-### Common Training Arguments
-
-| Argument | Description | Default |
-|----------|-------------|---------|
-| `--device` | Training device | `cuda` |
-| `--seed` | Random seed | `0` |
-| `--eval_seed` | Evaluation seed | `27` |
-| `--eval_freq` | Evaluation frequency | `10000` |
-| `--batch_size` | Training batch size | `256` |
-| `--checkpoints_path` | Model save directory | `None` |
-| `--dataset_filepath` | Path to HDF5 dataset | `offline_dataset_pp.hdf5` |
-| `--include_prev_actions` | Include previous actions in obs (48D) | `False` |
-| `--normalize` | Normalize observations | `False` |
 
 ### Weights & Biases Integration
 
@@ -349,7 +238,6 @@ All training scripts log to W&B:
 
 ```python
 project: "grand_tour"
-group: "IQL" / "CQL" / "VanillaBC" / "EDAC"
 ```
 
 View experiments at [wandb.ai](https://wandb.ai).
@@ -383,62 +271,7 @@ action_isaac = (action_gt - default_dof_pos) / action_scale
 # Isaac Gym → Grand Tour  
 action_gt = action_isaac * action_scale + default_dof_pos
 ```
-
 ---
-
-## Citation
-
-If you use this code, please cite the Grand Tour dataset:
-
-```bibtex
-@article{grand_tour_2024,
-  title={Grand Tour: A Large-Scale Dataset of Quadruped Robot Trajectories},
-  author={Leggedrobotics},
-  year={2024},
-  publisher={Hugging Face}
-}
-```
-
-And the relevant algorithm papers:
-
-<details>
-<summary>IQL</summary>
-
-```bibtex
-@article{kostrikov2021iql,
-  title={Offline Reinforcement Learning with Implicit Q-Learning},
-  author={Kostrikov, Ilya and Nair, Ashvin and Levine, Sergey},
-  journal={arXiv preprint arXiv:2110.06169},
-  year={2021}
-}
-```
-</details>
-
-<details>
-<summary>CQL</summary>
-
-```bibtex
-@article{kumar2020cql,
-  title={Conservative Q-Learning for Offline Reinforcement Learning},
-  author={Kumar, Aviral and Zhou, Aurick and Tucker, George and Levine, Sergey},
-  journal={NeurIPS},
-  year={2020}
-}
-```
-</details>
-
-<details>
-<summary>EDAC</summary>
-
-```bibtex
-@article{an2021edac,
-  title={Uncertainty-Based Offline Reinforcement Learning with Diversified Q-Ensemble},
-  author={An, Gaon and Moon, Seungyong and Kim, Jang-Hyun and Song, Hyun Oh},
-  journal={NeurIPS},
-  year={2021}
-}
-```
-</details>
 
 ---
 
@@ -448,6 +281,7 @@ And the relevant algorithm papers:
 - [Isaac Gym](https://developer.nvidia.com/isaac-gym) by NVIDIA
 - [legged_gym_anymal_d](https://github.com/modanesh/legged_gym_anymal_d) for ANYmal D support
 - [CORL](https://github.com/tinkoff-ai/CORL) for offline RL algorithm implementations
+- [DiffuseLoco](https://github.com/HybridRobotics/DiffuseLoco) for transformer-based diffusion policies
 
 ---
 

@@ -15,7 +15,7 @@ cycler==0.12.1
 cython==3.2.2
 d4rl==1.1
 diffusers==0.36.0
--e git+https://github.com/rohank36/grand_tour_project.git@3f60d8332ea4bdc83224b179817f4ad8ff875459#egg=diffusion_policy&subdirectory=diffusion_policy
+#-e git+https://github.com/rohank36/grand_tour_project.git@3f60d8332ea4bdc83224b179817f4ad8ff875459#egg=diffusion_policy&subdirectory=diffusion_policy
 dill==0.4.0
 dm-control==1.0.23
 dm-env==1.6
@@ -49,12 +49,12 @@ imageio==2.35.1
 importlib-metadata==8.5.0
 importlib-resources==6.4.5
 # Editable install with no version control (isaacgym==1.0rc4)
--e /home/exps/Projects/rohan/IsaacGym_Preview_4_Package/isaacgym/python
+#-e /home/exps/Projects/rohan/IsaacGym_Preview_4_Package/isaacgym/python
 jaxlib==0.4.13
 jinja2==3.1.6
 kiwisolver==1.4.7
 labmaze==1.0.6
--e git+https://github.com/modanesh/legged_gym_anymal_d.git@e6a0b8f70537049e84ae249c87fc5577e4539413#egg=legged_gym
+#-e git+https://github.com/modanesh/legged_gym_anymal_d.git@e6a0b8f70537049e84ae249c87fc5577e4539413#egg=legged_gym
 llvmlite==0.41.1
 lxml==6.0.2
 Markdown==3.7
@@ -115,7 +115,7 @@ requests==2.32.4
 requests-oauthlib==2.0.0
 rich==14.2.0
 rsa==4.9.1
--e git+https://github.com/leggedrobotics/rsl_rl.git@2ad79cf0caa85b91721abfe358105f869a784121#egg=rsl_rl
+#-e git+https://github.com/leggedrobotics/rsl_rl.git@2ad79cf0caa85b91721abfe358105f869a784121#egg=rsl_rl
 safetensors==0.5.3
 scipy==1.10.1
 sentry-sdk==2.45.0

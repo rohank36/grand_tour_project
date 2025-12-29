@@ -15,8 +15,8 @@ topics = [
         ]
 
 # if aligned data has already been instantiated, then can just load the aligned data. 
-#aligned = align_data(topics=topics, save_aligned=False)
-aligned = load_aligned_data("aligned_data.zarr")
+aligned = align_data(topics=topics, save_aligned=False)
+#aligned = load_aligned_data("aligned_data.zarr")
 
 output_file = "aligned_dataset_shapes.txt"
 with open(output_file, "w") as f:
