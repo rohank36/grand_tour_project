@@ -15,7 +15,7 @@ cycler==0.12.1
 cython==3.2.2
 d4rl==1.1
 diffusers==0.36.0
--e git+https://github.com/rohank36/grand_tour_project.git@cbc33756dc4b653e6ce03aa989464486e42f8369#egg=diffusion_policy&subdirectory=diffusion_policy
+-e git+https://github.com/rohank36/grand_tour_project.git@3f60d8332ea4bdc83224b179817f4ad8ff875459#egg=diffusion_policy&subdirectory=diffusion_policy
 dill==0.4.0
 dm-control==1.0.23
 dm-env==1.6
