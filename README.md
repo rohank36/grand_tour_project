@@ -144,6 +144,13 @@ Note that if the aligned_data.zarr has already been created, you can comment out
 - `terminals` — Episode boundaries
 - `next_observations` — Next state
 
+#### Isaac Gym Dataset Note: 
+- The "Isaac Gym" dataset is saved as `expert_dataset.hdf5` 
+- To build this dataset run `build_dataset.py` in modanesh/legged_gym repo on `rohan-gt-project` branch
+- Once the dataset is created copy it to the codebase here
+- If there are any issues when trying to train on the dataset, run `./fix_bad_expert_dataset.py` to fix the (N,1) -> (N,) issue if it arises.
+
+
 ### Observation Space (48 dimensions)
 
 | Index | Description | Scale |
